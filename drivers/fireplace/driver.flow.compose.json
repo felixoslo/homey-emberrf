@@ -51,9 +51,27 @@
         "no": "Øk flammen"
       },
       "titleFormatted": {
-        "en": "Increase flame",
-        "no": "Øk flammen"
-      }
+        "en": "Increase flame (factor [[factor]])",
+        "no": "Øk flammen (faktor [[factor]])"
+      },
+      "args": [
+        {
+          "name": "factor",
+          "type": "number",
+          "title": {
+            "en": "Duration factor (1–10)",
+            "no": "Varighetsfaktor (1–10)"
+          },
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "required": true,
+          "placeholder": {
+            "en": "1 = 10 repeats; 10 = 100 repeats",
+            "no": "1 = 10 repetisjoner; 10 = 100 repetisjoner"
+          }
+        }
+      ]
     },
     {
       "id": "send_flame_down",
@@ -62,9 +80,27 @@
         "no": "Senk flammen"
       },
       "titleFormatted": {
-        "en": "Decrease flame",
-        "no": "Senk flammen"
-      }
+        "en": "Decrease flame (factor [[factor]])",
+        "no": "Senk flammen (faktor [[factor]])"
+      },
+      "args": [
+        {
+          "name": "factor",
+          "type": "number",
+          "title": {
+            "en": "Duration factor (1–10)",
+            "no": "Varighetsfaktor (1–10)"
+          },
+          "min": 1,
+          "max": 10,
+          "step": 1,
+          "required": true,
+          "placeholder": {
+            "en": "1 = 10 repeats; 10 = 100 repeats",
+            "no": "1 = 10 repetisjoner; 10 = 100 repetisjoner"
+          }
+        }
+      ]
     }
   ],
   "triggers": [

@@ -39,6 +39,20 @@ EmberRF is an open-source experimental Homey Python (SDK v3) app to control **Ma
 
 The app supports Homey's standard On/Off device Flows. Six repeatable action cards send `ON`, `OFF`, `Broad flame`, and `Narrow flame` regardless of current virtual On/Off state. Two trigger cards report an RF send **accepted by Homey** or a **send error**, with tokens for command, antenna, source and/or error. No automatic retransmission is performed after a failure.
 
+
+
+## Flame Up / Down — continuous hold and Flow control (alpha v0.3.0)
+
+Both commands use the model-specific G6R RF masks already defined in the original Maxitrol Homey app: **Flame Up = 1101**, **Flame Down = 1110**, using the standard long ending pulse. The previously tested On/Off and AUX/broad/narrow radio profiles have not been changed.
+
+**Short press:** The standard Homey device buttons Flame Up and Flame Down each send 10 RF repetitions. A native Homey button does not provide reliable finger-release information, and cannot safely implement continuous holding.
+
+**Real press-and-hold:** Add the **EmberRF flame hold** widget to a Homey dashboard. Select your EmberRF fireplace in widget settings. Touch and hold ▲ or ▼ to send consecutive 10-frame bursts. Release to stop. It also stops on pointer cancellation, dashboard hide and browser focus loss; the Homey backend enforces an approximately 1.2-second heartbeat timeout and an absolute eight-second maximum. An already-started short burst cannot be revoked. The dashboard widget is an alpha feature pending physical and mobile-device testing.
+
+**Flow duration factor:** The explicit Increase Flame and Decrease Flame Flow action cards include a required **Factor** from 1 to 10. Factor 1 = 10 RF repetitions, factor 4 = 40 repetitions, factor 10 = 100 repetitions. This changes RF transmission length, **not a measured percentage or known flame height**. Start at factor 1 while watching the fireplace. Out-of-range or noninteger factors are rejected.
+
+**Testing status:** Flame Down RF 1110 matches both HA Broadlink storage and 88 passive RF frames; the Flame Up RF mask 1101 is from the original Maxitrol driver. The HA Broadlink entry named Flame Up was saved as IR, not RF, and was not used. The new hold widget and Flow duration factors have passed offline tests but still require physical tuning and verification on the fireplace.
+
 ## Application logging
 
 `EMBERRF TX START`, `EMBERRF TX OK`, `EMBERRF TX FEIL` (error), and `EMBERRF ANTENNE` provide action, source, selected antenna, signal profile and repetitions. Do not publish your actual handset address from the runtime logs.

@@ -27,3 +27,14 @@ Lisens: MIT, med opphavskreditering av [Michael Dove](https://github.com/michael
 ## Flamme opp/ned – funn fra HA og Broadlink
 
 «Flamme ned» ligger i HA sitt Broadlink-kodelager som **RF**. Dekodingen ga G6R-kommando 1110 med lang avslutningspuls, som også stemmer med 88 gyldige RF-rammer fra originalfjernkontrollen. «Flamme opp» ligger der som **IR**, ikke RF. EmberRF bruker derfor i stedet den originale Maxitrol Homey-appens RF-kommando 1101 med lang avslutningspuls. **RF-varianten av Flamme opp er foreløpig ikke fysisk testet med EmberRF.** Begge har egne knapper og Flow-handlinger.
+
+
+## v0.3.0 alfa: Hold inne og varighetsfaktor
+
+De modellspesifikke RF-kodene fra den originale Maxitrol-appen er beholdt: **Flamme opp = 1101** og **Flamme ned = 1110**. De fire tidligere fungerende På/Av/Bred/Smal-kodene er ikke endret.
+
+Homeys vanlige knapper Flamme opp og Flamme ned gir et enkelttrykk med 10 RF-repetisjoner. De registrerer ikke pålitelig når fingeren slippes, så de er ikke ekte holdeknapper.
+
+For å justere så lenge du holder inne: Legg til **EmberRF – hold flamme** på et Homey-dashboard. Velg EmberRF-peisen i widgetens innstillinger, og hold inne ▲ Flamme opp eller ▼ Flamme ned. Det sendes korte RF-serier kontinuerlig mens fingeren holdes nede. Slipp for å stoppe. Ved bortfall av kontakt stopper Homey etter ca. 1,2 sekunder uten nytt signal, og alle hold avsluttes automatisk etter maksimalt åtte sekunder. En allerede påbegynt RF-serie kan ikke stoppes øyeblikkelig.
+
+I Flow-kortene **Øk flammen** og **Senk flammen** velger du **varighetsfaktor 1–10**. Faktor 1 = 10 repetisjoner, faktor 5 = 50 og faktor 10 = 100. Dette er ikke en prosent for flammehøyden, men en måling av hvor lenge reguleringssignalet gjentas. Begynn med faktor 1 og juster etter observerte resultater. Hverken widgeten eller denne nye Flow-funksjonen er ennå fysisk verifisert.

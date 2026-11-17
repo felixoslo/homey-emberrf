@@ -9,3 +9,9 @@ RF transmission acknowledgement cannot guarantee gas valve or flame status.
 Keep the original remote; never rely on this alpha for unattended gas ignition.
 
 Source, manual and testing: https://github.com/felixoslo/homey-emberrf
+
+
+Alpha 0.3.0 adds Flame Up/Down scaling via Flow factor 1 to 10 (ten RF frames per
+factor point). A dashboard widget provides actual press-and-hold through
+repeated short radio bursts with automatic stop on release, lost heartbeat,
+or the eight-second maximum. Native device buttons remain one-shot.

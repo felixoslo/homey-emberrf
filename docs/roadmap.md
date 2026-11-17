@@ -19,3 +19,11 @@
 No claim of official certification or compatibility with untested fireplace models.
 
 - Physically validate EmberRF Flame Up RF 1101 (HA only has an unrelated IR packet under that name). Confirm effective press/repetition duration. Flame Down RF 1110 is supported by HA Broadlink and passive handset captures.
+
+
+## v0.3.0 alpha implementation and outstanding verification
+
+- Model-specific G6R RF masks 1101 (Flame Up) and 1110 (Flame Down) implemented with repeatable time factor 1–10 in Homey Flow. Radio timing unchanged.
+- Dashboard widget supports press and hold with release, browser-hide and focus-loss STOP, backend heartbeat timeout and eight-second hold limit.
+- Physical testing pending: confirm Flame Up actually raises flame (HA had an IR rather than RF capture), whether 10 repeated packets yield the intended step, hold response time, and the behavior of RF Bridge vs Pro. Test release timing on Android and iOS.
+- Do not confuse virtual On/Off state, RF acknowledgment or transmission factor with measured burner operation or gas safety.

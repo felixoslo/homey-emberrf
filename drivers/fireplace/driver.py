@@ -47,7 +47,15 @@ class EmberRFDriver(Driver):
 
             async def on_flow(card_arguments: dict[str, Any], *, action: str = cmd, **kwargs: Any) -> None:
                 device = card_arguments["device"]
-                await device.send_command(action, source=f"Flow:{action}")
+                if action in ("flame_up", "flame_down"):
+                    factor = card_arguments.get("factor", 1)
+                    repeats = device.repetitions_for_factor(factor)
+                    await device.send_command(
+                        action, source=f"Flow:{action} factor={factor}",
+                        repetitions=repeats,
+                    )
+                else:
+                    await device.send_command(action, source=f"Flow:{action}")
                 if action in ("on", "off"):
                     await device.set_capability_value("onoff", action == "on")
 

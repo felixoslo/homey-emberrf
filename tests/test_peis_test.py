@@ -162,6 +162,25 @@ class PeisManifestTests(unittest.TestCase):
         self.assertIn("signal.on_payload(on_payload)",source)
         self.assertIn("manual_address",source)
 
+    def test_flow_factor_arguments_and_hold_widget(self):
+        flow=json.loads((APP/"drivers/fireplace/driver.flow.compose.json").read_text())
+        for a in flow["actions"]:
+            if a["id"] in ("send_flame_up","send_flame_down"):
+                self.assertEqual(a["args"][0]["name"],"factor")
+                self.assertEqual(a["args"][0]["type"],"number")
+                self.assertEqual((a["args"][0]["min"],a["args"][0]["max"]),(1,10))
+        widget=json.loads((APP/"widgets/flame_hold/widget.compose.json").read_text())
+        self.assertEqual(widget["devices"]["type"],"app")
+        self.assertTrue(widget["devices"]["singular"])
+        self.assertEqual(len(widget["api"]),3)
+        html=(APP/"widgets/flame_hold/public/index.html").read_text()
+        for term in ("pointerdown","pointerup","pointercancel","visibilitychange","/hold/heartbeat"):
+            self.assertIn(term,html)
+        device=(APP/"drivers/fireplace/device.py").read_text()
+        self.assertIn("HOLD_MAX_SECONDS = 8.0",device)
+        self.assertIn("HOLD_HEARTBEAT_SECONDS = 1.2",device)
+        self.assertIn("self._hold_stop.set()",device)
+
     def test_no_sdk_private_lock_collision(self):
         src = (APP / "drivers/fireplace/device.py").read_text()
         self.assertIn("self._tx_lock = asyncio.Lock()", src)
@@ -209,6 +228,54 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual([c["repetitions"] for c in calls],[10,10])
         self.assertEqual([x[0] for x in self.device.triggers],["sent","sent"])
+
+    async def test_flow_factor_sets_10_to_100_repetitions(self):
+        compute=self.mod.repetitions_for_factor
+        self.assertEqual(compute(1),10)
+        self.assertEqual(compute(3),30)
+        self.assertEqual(compute(10),100)
+        for invalid in (0,11,1.5,True,False,None,"2",float("nan"),float("inf")):
+            with self.assertRaises(ValueError):
+                compute(invalid)
+        await self.device.send_command(
+            "flame_up",source="Flow:flame_up factor=4",
+            repetitions=compute(4),
+        )
+        self.assertEqual(self.device.rf.signals["g6r_h4t_standard"].calls[-1]["repetitions"],40)
+
+    async def test_dashboard_hold_stops_after_release(self):
+        signal=self.device.rf.signals["g6r_h4t_standard"]
+        async def simulated_tx(bits,**kwargs):
+            signal.calls.append({"bits":list(bits),**kwargs})
+            await asyncio.sleep(0.025)
+        signal.tx=simulated_tx
+        key="unit-hold-unique-session"
+        result=await self.device.start_hold("flame_up",key)
+        self.assertTrue(result["active"])
+        await asyncio.sleep(0.07)
+        self.assertTrue((await self.device.heartbeat_hold(key))["active"])
+        self.assertFalse((await self.device.stop_hold("wrong-session"))["stopped"])
+        self.assertTrue((await self.device.stop_hold(key))["stopped"])
+        n=len(signal.calls)
+        self.assertGreater(n,0)
+        await asyncio.sleep(0.07)
+        self.assertEqual(len(signal.calls),n)
+        self.assertTrue(all(x["repetitions"]==10 for x in signal.calls))
+
+    async def test_hold_stops_when_heartbeat_is_stale(self):
+        signal=self.device.rf.signals["g6r_h4t_standard"]
+        async def simulated_tx(bits,**kwargs):
+            signal.calls.append({"bits":list(bits),**kwargs})
+            await asyncio.sleep(0.02)
+        signal.tx=simulated_tx
+        await self.device.start_hold("flame_down","heartbeat-test-session")
+        self.device._hold_last_heartbeat-=10
+        await asyncio.sleep(0.08)
+        self.assertFalse((await self.device.heartbeat_hold("heartbeat-test-session"))["active"])
+        n=len(signal.calls)
+        await asyncio.sleep(0.05)
+        self.assertEqual(len(signal.calls),n)
+        self.assertLessEqual(n,1)
 
     async def test_errors_logged_and_not_retried(self):
         self.device.rf.signals["g6r_h4t_aux"].fail = True

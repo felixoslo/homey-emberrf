@@ -1,6 +1,6 @@
 {
   "id": "com.emberrf.homey",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "runtime": "python",
@@ -14,8 +14,8 @@
     "no": "EmberRF – G6R-H4T2"
   },
   "description": {
-    "en": "Alpha for Maxitrol G6R-H4T2 433.92 MHz. Built-in On/Off, broad/narrow flame, flame up/down RF codes; pairing learns handset address only. Homey Pro/Bridge, Flows and logs.",
-    "no": "Alfa for Maxitrol G6R-H4T2 433,92 MHz. Innebygde RF-koder for På/Av, bred/smal og flamme opp/ned; paring lærer kun fjernkontrolladressen. Homey Pro/Bridge, Flow og logg."
+    "en": "Alpha for Maxitrol G6R-H4T2 433.92 MHz. Built-in On/Off, broad/narrow flame, flame up/down RF codes; pairing learns handset address only. Homey Pro/Bridge, Flows and logs. Adjustable flame up/down via Flow factor and dashboard press-and-hold.",
+    "no": "Alfa for Maxitrol G6R-H4T2 433,92 MHz. Innebygde RF-koder for På/Av, bred/smal og flamme opp/ned; paring lærer kun fjernkontrolladressen. Homey Pro/Bridge, Flow og logg. Justerbar flamme opp/ned med Flow-faktor og holdeknapper på dashboard."
   },
   "author": {
     "name": "EmberRF contributors (based on MIT source by Michael Dove)"

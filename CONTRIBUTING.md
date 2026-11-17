@@ -7,3 +7,6 @@ Run `python3 -m unittest discover -s tests -q`, `homey app build --path .`, and 
 Important source files: `.homeycompose/signals/433/` (RX and two TX RF profiles); `drivers/fireplace/driver.py` (pairing + Flow registration); `drivers/fireplace/pair/learn_remote.html` (pairing UI); `drivers/fireplace/device.py` (RF command transmission); `tests/` (unit tests).
 
 The project is licensed under MIT and credits Michael Dove's upstream Maxitrol project.
+
+
+The v0.3.0 hold widget is safety-relevant. Changes must include tests for interrupted widget contacts, repeated/overlapping sessions, factor bounds and real-device response before claiming hardware support. Do not report accepted RF transmission as proven fire state.
