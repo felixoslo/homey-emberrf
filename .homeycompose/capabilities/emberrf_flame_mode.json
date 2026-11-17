@@ -1,0 +1,33 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Flame mode (requested)",
+    "no": "Flammemodus (anmodet)"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "values": [
+    {
+      "id": "unknown",
+      "title": {
+        "en": "Unknown",
+        "no": "Ukjent"
+      }
+    },
+    {
+      "id": "narrow",
+      "title": {
+        "en": "Narrow flame",
+        "no": "Smal flamme"
+      }
+    },
+    {
+      "id": "broad",
+      "title": {
+        "en": "Broad flame",
+        "no": "Bred flamme"
+      }
+    }
+  ]
+}

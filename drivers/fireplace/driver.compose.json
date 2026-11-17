@@ -9,7 +9,8 @@
     "button.bred_flamme",
     "button.smal_flamme",
     "button.flame_up",
-    "button.flame_down"
+    "button.flame_down",
+    "emberrf_flame_mode"
   ],
   "capabilitiesOptions": {
     "button.bred_flamme": {
@@ -35,6 +36,13 @@
         "en": "Flame down",
         "no": "Flamme ned"
       }
+    },
+    "emberrf_flame_mode": {
+      "title": {
+        "en": "Requested flame mode",
+        "no": "Flammemodus (anmodet)"
+      },
+      "preventInsights": true
     }
   },
   "images": {

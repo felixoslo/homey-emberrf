@@ -103,7 +103,7 @@ class PeisManifestTests(unittest.TestCase):
         self.flow = json.loads((APP / "drivers/fireplace/driver.flow.compose.json").read_text())
 
     def test_capabilities_switch_and_two_momentary_buttons(self):
-        self.assertEqual(self.driver["capabilities"], ["onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down"])
+        self.assertEqual(self.driver["capabilities"], ["onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down", "emberrf_flame_mode"])
 
     def test_bridge_or_pro_selectable(self):
         self.assertEqual(self.driver["rf433"], {"satelliteMode": True})
@@ -133,15 +133,15 @@ class PeisManifestTests(unittest.TestCase):
         manifest=json.loads((APP/".homeycompose/app.json").read_text())
         self.assertIn("G6R-H4T2",manifest["description"]["en"])
         self.assertIn("G6R-H4T2",manifest["description"]["no"])
-        self.assertIn("pairing learns handset address only",manifest["description"]["en"])
+        self.assertIn("Pair handset address only",manifest["description"]["en"])
         self.assertEqual(manifest["id"],"com.emberrf.homey")
         driver=(APP/"drivers/fireplace/device.py").read_text()
         self.assertIn('("På / tenn", 0b1001, STANDARD_SIGNAL_ID, 10)',driver)
         self.assertIn('("Av", 0b1011, STANDARD_SIGNAL_ID, 10)',driver)
         self.assertIn('("Bred flamme", 0b1001, AUX_SIGNAL_ID, 30)',driver)
         self.assertIn('("Smal flamme", 0b1010, AUX_SIGNAL_ID, 30)',driver)
-        self.assertIn('("Flamme opp", 0b1101, STANDARD_SIGNAL_ID, 10)',driver)
-        self.assertIn('("Flamme ned", 0b1110, STANDARD_SIGNAL_ID, 10)',driver)
+        self.assertIn('("Flamme opp", 0b1101, STANDARD_SIGNAL_ID, DEFAULT_FLAME_TAP_REPETITIONS)',driver)
+        self.assertIn('("Flamme ned", 0b1110, STANDARD_SIGNAL_ID, DEFAULT_FLAME_TAP_REPETITIONS)',driver)
 
     def test_pairing_recognizes_handset_address_only(self):
         import ast,re,typing
@@ -194,12 +194,12 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
         await self.device.on_init()
 
     async def test_migration_preserves_device_and_does_not_transmit(self):
-        self.assertEqual(self.device.caps, {"onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down"})
+        self.assertEqual(self.device.caps, {"onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down", "emberrf_flame_mode"})
         self.assertEqual(self.device.values["onoff"], False)
-        self.assertEqual(set(self.device.listeners), self.device.caps)
+        self.assertEqual(set(self.device.listeners), self.device.caps - {"emberrf_flame_mode"})
         self.assertEqual(sum(len(x.calls) for x in self.device.rf.signals.values()), 0)
         await self.device.on_init()
-        self.assertEqual(self.device.caps, {"onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down"})
+        self.assertEqual(self.device.caps, {"onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down", "emberrf_flame_mode"})
         self.assertEqual(sum(len(x.calls) for x in self.device.rf.signals.values()), 0)
 
     async def test_onoff_switch_uses_long_eof_profile(self):
@@ -226,7 +226,7 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
             ["".join(map(str,c["bits"])) for c in calls],
             ["0100100011010001011101", "0100100011010001011110"]
         )
-        self.assertEqual([c["repetitions"] for c in calls],[10,10])
+        self.assertEqual([c["repetitions"] for c in calls],[50,50])
         self.assertEqual([x[0] for x in self.device.triggers],["sent","sent"])
 
     async def test_flow_factor_sets_10_to_100_repetitions(self):
@@ -260,7 +260,7 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
         self.assertGreater(n,0)
         await asyncio.sleep(0.07)
         self.assertEqual(len(signal.calls),n)
-        self.assertTrue(all(x["repetitions"]==10 for x in signal.calls))
+        self.assertTrue(all(x["repetitions"]==20 for x in signal.calls))
 
     async def test_hold_stops_when_heartbeat_is_stale(self):
         signal=self.device.rf.signals["g6r_h4t_standard"]
@@ -293,6 +293,17 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(recorded,len(signal.calls))
         self.assertEqual("".join(map(str,signal.calls[-1]["bits"])),"0100100011010001011011")
 
+    async def test_requested_flame_mode_migrates_and_logs(self):
+        self.assertIn("emberrf_flame_mode",self.device.caps)
+        self.assertEqual(self.device.values["emberrf_flame_mode"],"unknown")
+        await self.device.send_command("narrow",source="unit")
+        self.assertEqual(self.device.values["emberrf_flame_mode"],"narrow")
+        await self.device.send_command("broad",source="unit")
+        self.assertEqual(self.device.values["emberrf_flame_mode"],"broad")
+        await self.device.send_command("off",source="unit")
+        self.assertEqual(self.device.values["emberrf_flame_mode"],"unknown")
+        self.assertTrue(any("EMBERRF FLAMMEMODUS" in l for l in self.device.logs))
+
     async def test_errors_logged_and_not_retried(self):
         self.device.rf.signals["g6r_h4t_aux"].fail = True
         with self.assertRaisesRegex(RuntimeError, "test RF failure"):
@@ -300,6 +311,13 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(self.device.rf.signals["g6r_h4t_aux"].calls), 1)
         self.assertTrue(any("TX FEIL" in log for log in self.device.errors))
         self.assertEqual(self.device.triggers[0][0], "failed")
+
+    async def test_rf_failure_keeps_previous_mode(self):
+        await self.device.send_command("broad",source="unit")
+        self.device.rf.signals["g6r_h4t_aux"].fail=True
+        with self.assertRaises(RuntimeError):
+            await self.device.send_command("narrow",source="unit")
+        self.assertEqual(self.device.values["emberrf_flame_mode"],"broad")
 
     async def test_antenna_change_does_not_transmit(self):
         await self.device.on_settings({"satellite_mode_antenna": "self"}, {"satellite_mode_antenna": "test-homey-bridge-id"}, ("satellite_mode_antenna",))

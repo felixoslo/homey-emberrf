@@ -8,7 +8,8 @@ from homey.device import Device
 # a known percentage of physical flame height.
 BASE_REPETITIONS = 10
 MAX_FLOW_FACTOR = 10
-HOLD_BURST_REPETITIONS = 10
+DEFAULT_FLAME_TAP_REPETITIONS = 50  # One contiguous TX call; approximately 5x former 10-frame tap
+HOLD_BURST_REPETITIONS = 20
 HOLD_MAX_SECONDS = 8.0
 HOLD_HEARTBEAT_SECONDS = 1.2
 
@@ -30,8 +31,8 @@ COMMANDS: dict[str, tuple[str, int, str, int]] = {
     "off": ("Av", 0b1011, STANDARD_SIGNAL_ID, 10),
     "broad": ("Bred flamme", 0b1001, AUX_SIGNAL_ID, 30),
     "narrow": ("Smal flamme", 0b1010, AUX_SIGNAL_ID, 30),
-    "flame_up": ("Flamme opp", 0b1101, STANDARD_SIGNAL_ID, 10),
-    "flame_down": ("Flamme ned", 0b1110, STANDARD_SIGNAL_ID, 10),
+    "flame_up": ("Flamme opp", 0b1101, STANDARD_SIGNAL_ID, DEFAULT_FLAME_TAP_REPETITIONS),
+    "flame_down": ("Flamme ned", 0b1110, STANDARD_SIGNAL_ID, DEFAULT_FLAME_TAP_REPETITIONS),
 }
 
 
@@ -68,6 +69,10 @@ class PeisTestDevice(Device):
                 await self.remove_capability(obsolete)
                 self.log(f"EMBERRF MIGRATE: removed obsolete {obsolete}; no RF sent")
 
+        if not self.has_capability("emberrf_flame_mode"):
+            await self.add_capability("emberrf_flame_mode")
+            await self.set_capability_value("emberrf_flame_mode", "unknown")
+            self.log("EMBERRF MIGRATE: flame mode state installed, initially unknown; no RF sent")
         self.register_capability_listener("onoff", self.on_onoff)
         self.register_capability_listener("button.bred_flamme", self._on_broad)
         self.register_capability_listener("button.smal_flamme", self._on_narrow)
@@ -229,6 +234,15 @@ class PeisTestDevice(Device):
                 if emit_result:
                     await self._trigger_result("rf_failed", {"kommando": title, "antenne": antenna, "feil": str(exc)[:240]})
                 raise
+            if action in ("narrow", "broad", "off", "on"):
+                # This is last requested mode only: no RF feedback about burner status.
+                mode={"narrow":"narrow","broad":"broad","on":"unknown","off":"unknown"}[action]
+                if self.has_capability("emberrf_flame_mode"):
+                    try:
+                        await self.set_capability_value("emberrf_flame_mode",mode)
+                        self.log(f"EMBERRF FLAMMEMODUS: anmodet={mode}; via={source}; ikke fysisk bekreftet")
+                    except Exception as state_error:
+                        self.error(f"EMBERRF MODE LOG ERROR: {state_error}")
             self.log(
                 f"EMBERRF TX OK: kommando={title}; antenne={antenna}; "
                 f"kilde={source}; RF akseptert av Homey; fysisk resultat ikke bekreftet"

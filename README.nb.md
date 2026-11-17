@@ -40,3 +40,10 @@ For å justere så lenge du holder inne: Legg til **EmberRF – hold flamme** p�
 I Flow-kortene **Øk flammen** og **Senk flammen** velger du **varighetsfaktor 1–10**. Faktor 1 = 10 repetisjoner, faktor 5 = 50 og faktor 10 = 100. Dette er ikke en prosent for flammehøyden, men en måling av hvor lenge reguleringssignalet gjentas. Begynn med faktor 1 og juster etter observerte resultater. Hverken widgeten eller denne nye Flow-funksjonen er ennå fysisk verifisert.
 
 **Forrang:** En annen kommando til peisen, særlig Av, avbryter en eventuell pågående holderegulering før neste RF-pulstog. En påbegynt kort RF-sending kan likevel ikke trekkes tilbake.
+
+
+## v0.4.0 alfa – lengre flammejustering og loggføring
+
+Ett kort trykk på **Flamme opp** eller **Flamme ned** sender nå **50 RF-repetisjoner som én TX-kommando**, fem ganger lengre enn de tidligere 10. Dette er ikke fem separate klikk. Målet er færre pip og større justering per trykk, men hvor mange av peisens 22 fysiske trinn det gir må testes. I Flow velger man fortsatt faktor 1–10 (10–100 repetisjoner per sammenhengende TX-kall). Dashboardet har kortere 20-repetisjons-serier for å kunne stoppe når man slipper; en fysisk påbegynt serie kan ikke avbrytes.
+
+Appen har nå en avlesbar tilstand **Flammemodus (anmodet)** med «Smal flamme», «Bred flamme» og «Ukjent», som oppdateres etter en akseptert RF-sending. Det er *ikke* målt fysisk brennerstatus. For en lesbar historikk kan Homey Flow-kortet «RF-kommando ble akseptert av Homey» kobles til tidslinjelogg, som viser blant annet bred/smal flamme og justeringer.

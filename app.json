@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.emberrf.homey",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "runtime": "python",
@@ -15,8 +15,8 @@
     "no": "EmberRF – G6R-H4T2"
   },
   "description": {
-    "en": "Alpha for Maxitrol G6R-H4T2 433.92 MHz. Built-in On/Off, broad/narrow flame, flame up/down RF codes; pairing learns handset address only. Homey Pro/Bridge, Flows and logs. Adjustable flame up/down via Flow factor and dashboard press-and-hold.",
-    "no": "Alfa for Maxitrol G6R-H4T2 433,92 MHz. Innebygde RF-koder for På/Av, bred/smal og flamme opp/ned; paring lærer kun fjernkontrolladressen. Homey Pro/Bridge, Flow og logg. Justerbar flamme opp/ned med Flow-faktor og holdeknapper på dashboard."
+    "en": "Alpha for Maxitrol G6R-H4T2 433.92 MHz: direct On/Off, narrow/broad burner mode, longer flame up/down commands, adjustable Flow duration and live command logging. Pair handset address only.",
+    "no": "Alfa for Maxitrol G6R-H4T2 (433,92 MHz): På/Av, bred/smal flamme, lengre RF-sending ved flamme opp/ned, justerbar Flow-varighet og logg. Par kun fjernkontrolladresse."
   },
   "author": {
     "name": "EmberRF contributors (based on MIT source by Michael Dove)"
@@ -276,7 +276,8 @@
         "button.bred_flamme",
         "button.smal_flamme",
         "button.flame_up",
-        "button.flame_down"
+        "button.flame_down",
+        "emberrf_flame_mode"
       ],
       "capabilitiesOptions": {
         "button.bred_flamme": {
@@ -302,6 +303,13 @@
             "en": "Flame down",
             "no": "Flamme ned"
           }
+        },
+        "emberrf_flame_mode": {
+          "title": {
+            "en": "Requested flame mode",
+            "no": "Flammemodus (anmodet)"
+          },
+          "preventInsights": true
         }
       },
       "images": {
@@ -356,6 +364,41 @@
       },
       "id": "flame_hold",
       "settings": []
+    }
+  },
+  "capabilities": {
+    "emberrf_flame_mode": {
+      "type": "enum",
+      "title": {
+        "en": "Flame mode (requested)",
+        "no": "Flammemodus (anmodet)"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "values": [
+        {
+          "id": "unknown",
+          "title": {
+            "en": "Unknown",
+            "no": "Ukjent"
+          }
+        },
+        {
+          "id": "narrow",
+          "title": {
+            "en": "Narrow flame",
+            "no": "Smal flamme"
+          }
+        },
+        {
+          "id": "broad",
+          "title": {
+            "en": "Broad flame",
+            "no": "Bred flamme"
+          }
+        }
+      ]
     }
   },
   "signals": {

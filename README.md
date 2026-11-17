@@ -62,3 +62,10 @@ Both commands use the model-specific G6R RF masks already defined in the origina
 This repository is an **alpha** and is **not yet listed in Homey App Store**. The RF data and device control were physically tested on one specific setup; generic pairing and other receivers still require validation. See [roadmap](docs/roadmap.md). Issues and improvement reports are welcome, but test on physical gas equipment only under supervision.
 
 Created by EmberRF contributors, incorporating/deriving from the MIT-licensed work of [Michael Dove](https://github.com/michaeldove/homey-maxitrol-fireplace). Original copyright notice is retained in [LICENSE](LICENSE). Unaffiliated with Maxitrol, Athom or Broadlink.
+
+
+## Alpha v0.4.0: requested burner mode and fewer RF calls
+
+A single Homey Flame Up or Flame Down tap now sends **50 radio frames within one signal.tx call** (formerly 10 frames), aiming to produce a more substantial adjustment without 5 distinct command invocations or repeated app-level clicks. No claim is made that 50 RF frames equal exactly five of the fireplace's approximately 22 physical height steps; the actual response and number of audible beeps require testing. Flow factor 1–10 still sends 10–100 frames as one API TX call. Dashboard holds use 20-frame bursts to reduce interruption latency.
+
+The new read-only enum **Requested Flame Mode** has Narrow, Broad and Unknown states, updated only after an accepted RF command. It is explicitly a command estimate, not measured valve or flame state. Use the existing RF accepted Flow trigger together with Homey's Timeline logging app to record **all commands**, including Narrow/Broad, not only On/Off capability events.
