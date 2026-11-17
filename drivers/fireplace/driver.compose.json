@@ -1,0 +1,59 @@
+{
+  "name": {
+    "en": "Maxitrol G6R-H4T2 fireplace",
+    "no": "Maxitrol G6R-H4T2 peis"
+  },
+  "class": "heater",
+  "capabilities": [
+    "onoff",
+    "button.bred_flamme",
+    "button.smal_flamme",
+    "button.flame_up",
+    "button.flame_down"
+  ],
+  "capabilitiesOptions": {
+    "button.bred_flamme": {
+      "title": {
+        "en": "Broad flame",
+        "no": "Bred flamme"
+      }
+    },
+    "button.smal_flamme": {
+      "title": {
+        "en": "Narrow flame",
+        "no": "Smal flamme"
+      }
+    },
+    "button.flame_up": {
+      "title": {
+        "en": "Flame up",
+        "no": "Flamme opp"
+      }
+    },
+    "button.flame_down": {
+      "title": {
+        "en": "Flame down",
+        "no": "Flamme ned"
+      }
+    }
+  },
+  "images": {
+    "small": "/drivers/fireplace/assets/images/small.png",
+    "large": "/drivers/fireplace/assets/images/large.png",
+    "xlarge": "/drivers/fireplace/assets/images/xlarge.png"
+  },
+  "platforms": [
+    "local"
+  ],
+  "connectivity": [
+    "rf433"
+  ],
+  "rf433": {
+    "satelliteMode": true
+  },
+  "pair": [
+    {
+      "id": "learn_remote"
+    }
+  ]
+}

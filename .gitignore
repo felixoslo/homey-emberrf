@@ -1,0 +1,13 @@
+.homeybuild/
+.venv/
+.python_cache/
+.python_packages/
+__pycache__/
+*.py[cod]
+env.json
+.env
+.env.*
+*.secrets.json
+logs/
+rf-captures/
+.DS_Store

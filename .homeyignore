@@ -1,0 +1,10 @@
+/tests/
+/docs/
+/.git/
+/.gitignore
+/.github/
+/.venv/
+/__pycache__/
+/README.md
+/README.nb.md
+/CONTRIBUTING.md

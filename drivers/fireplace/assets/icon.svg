@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <rect
+    x="65"
+    y="65"
+    width="370"
+    height="330"
+    rx="18"
+    fill="none"
+    stroke="#000"
+    stroke-linejoin="round"
+    stroke-width="32"
+  />
+  <path
+    fill="none"
+    stroke="#000"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="26"
+    d="M250 350c-55 0-99-40-99-93 0-38 21-70 53-96-1 29 11 48 29 56-2-50 18-90 64-126 3 41 22 65 40 89 20 25 31 49 31 79 0 51-53 91-118 91Z"
+  />
+  <path
+    fill="none"
+    stroke="#000"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="32"
+    d="M38 435h424M99 395v40M401 395v40"
+  />
+</svg>

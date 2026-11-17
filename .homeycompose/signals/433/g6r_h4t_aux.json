@@ -1,0 +1,21 @@
+{
+  "carrier": 433920000,
+  "words": [
+    [
+      361,
+      690
+    ],
+    [
+      690,
+      361
+    ]
+  ],
+  "eof": [
+    361
+  ],
+  "interval": 32760,
+  "repetitions": 10,
+  "txOnly": true,
+  "minimalLength": 22,
+  "maximalLength": 22
+}

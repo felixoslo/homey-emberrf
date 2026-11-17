@@ -1,0 +1,40 @@
+{
+  "id": "com.emberrf.homey",
+  "version": "0.2.1",
+  "compatibility": ">=13.0.0",
+  "sdk": 3,
+  "runtime": "python",
+  "pythonVersion": "3.14",
+  "brandColor": "#D66A1F",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "EmberRF – G6R-H4T2",
+    "no": "EmberRF – G6R-H4T2"
+  },
+  "description": {
+    "en": "Alpha for Maxitrol G6R-H4T2 433.92 MHz. Built-in On/Off, broad/narrow flame, flame up/down RF codes; pairing learns handset address only. Homey Pro/Bridge, Flows and logs.",
+    "no": "Alfa for Maxitrol G6R-H4T2 433,92 MHz. Innebygde RF-koder for På/Av, bred/smal og flamme opp/ned; paring lærer kun fjernkontrolladressen. Homey Pro/Bridge, Flow og logg."
+  },
+  "author": {
+    "name": "EmberRF contributors (based on MIT source by Michael Dove)"
+  },
+  "source": "https://github.com/felixoslo/homey-emberrf",
+  "homepage": "https://github.com/felixoslo/homey-emberrf",
+  "category": [
+    "climate"
+  ],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "permissions": [
+    "homey:wireless:433"
+  ],
+  "support": "https://github.com/felixoslo/homey-emberrf/issues",
+  "bugs": {
+    "url": "https://github.com/felixoslo/homey-emberrf/issues"
+  }
+}

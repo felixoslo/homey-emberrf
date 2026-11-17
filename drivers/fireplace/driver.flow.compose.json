@@ -1,0 +1,138 @@
+{
+  "actions": [
+    {
+      "id": "send_on",
+      "title": {
+        "en": "Send ON / ignition command",
+        "no": "Send PÅ / tenn"
+      },
+      "titleFormatted": {
+        "en": "Send ON / ignition command",
+        "no": "Send PÅ / tenn"
+      }
+    },
+    {
+      "id": "send_off",
+      "title": {
+        "en": "Send OFF command",
+        "no": "Send AV"
+      },
+      "titleFormatted": {
+        "en": "Send OFF command",
+        "no": "Send AV"
+      }
+    },
+    {
+      "id": "send_broad",
+      "title": {
+        "en": "Set broad flame",
+        "no": "Sett bred flamme"
+      },
+      "titleFormatted": {
+        "en": "Set broad flame",
+        "no": "Sett bred flamme"
+      }
+    },
+    {
+      "id": "send_narrow",
+      "title": {
+        "en": "Set narrow flame",
+        "no": "Sett smal flamme"
+      },
+      "titleFormatted": {
+        "en": "Set narrow flame",
+        "no": "Sett smal flamme"
+      }
+    },
+    {
+      "id": "send_flame_up",
+      "title": {
+        "en": "Increase flame",
+        "no": "Øk flammen"
+      },
+      "titleFormatted": {
+        "en": "Increase flame",
+        "no": "Øk flammen"
+      }
+    },
+    {
+      "id": "send_flame_down",
+      "title": {
+        "en": "Decrease flame",
+        "no": "Senk flammen"
+      },
+      "titleFormatted": {
+        "en": "Decrease flame",
+        "no": "Senk flammen"
+      }
+    }
+  ],
+  "triggers": [
+    {
+      "id": "rf_accepted",
+      "title": {
+        "en": "An RF command was accepted by Homey",
+        "no": "RF-kommando ble akseptert av Homey"
+      },
+      "tokens": [
+        {
+          "name": "kommando",
+          "type": "string",
+          "title": {
+            "en": "Command",
+            "no": "Kommando"
+          }
+        },
+        {
+          "name": "antenne",
+          "type": "string",
+          "title": {
+            "en": "Antenna",
+            "no": "Antenne"
+          }
+        },
+        {
+          "name": "kilde",
+          "type": "string",
+          "title": {
+            "en": "Source",
+            "no": "Kilde"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rf_failed",
+      "title": {
+        "en": "An RF command failed",
+        "no": "RF-kommando feilet"
+      },
+      "tokens": [
+        {
+          "name": "kommando",
+          "type": "string",
+          "title": {
+            "en": "Command",
+            "no": "Kommando"
+          }
+        },
+        {
+          "name": "antenne",
+          "type": "string",
+          "title": {
+            "en": "Antenna",
+            "no": "Antenne"
+          }
+        },
+        {
+          "name": "feil",
+          "type": "string",
+          "title": {
+            "en": "Error",
+            "no": "Feil"
+          }
+        }
+      ]
+    }
+  ]
+}

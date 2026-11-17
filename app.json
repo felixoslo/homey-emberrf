@@ -1,0 +1,364 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "com.emberrf.homey",
+  "version": "0.2.1",
+  "compatibility": ">=13.0.0",
+  "sdk": 3,
+  "runtime": "python",
+  "pythonVersion": "3.14",
+  "brandColor": "#D66A1F",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "EmberRF – G6R-H4T2",
+    "no": "EmberRF – G6R-H4T2"
+  },
+  "description": {
+    "en": "Alpha for Maxitrol G6R-H4T2 433.92 MHz. Built-in On/Off, broad/narrow flame, flame up/down RF codes; pairing learns handset address only. Homey Pro/Bridge, Flows and logs.",
+    "no": "Alfa for Maxitrol G6R-H4T2 433,92 MHz. Innebygde RF-koder for På/Av, bred/smal og flamme opp/ned; paring lærer kun fjernkontrolladressen. Homey Pro/Bridge, Flow og logg."
+  },
+  "author": {
+    "name": "EmberRF contributors (based on MIT source by Michael Dove)"
+  },
+  "source": "https://github.com/felixoslo/homey-emberrf",
+  "homepage": "https://github.com/felixoslo/homey-emberrf",
+  "category": [
+    "climate"
+  ],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "permissions": [
+    "homey:wireless:433"
+  ],
+  "support": "https://github.com/felixoslo/homey-emberrf/issues",
+  "bugs": {
+    "url": "https://github.com/felixoslo/homey-emberrf/issues"
+  },
+  "flow": {
+    "triggers": [
+      {
+        "id": "rf_accepted",
+        "title": {
+          "en": "An RF command was accepted by Homey",
+          "no": "RF-kommando ble akseptert av Homey"
+        },
+        "tokens": [
+          {
+            "name": "kommando",
+            "type": "string",
+            "title": {
+              "en": "Command",
+              "no": "Kommando"
+            }
+          },
+          {
+            "name": "antenne",
+            "type": "string",
+            "title": {
+              "en": "Antenna",
+              "no": "Antenne"
+            }
+          },
+          {
+            "name": "kilde",
+            "type": "string",
+            "title": {
+              "en": "Source",
+              "no": "Kilde"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=fireplace"
+          }
+        ]
+      },
+      {
+        "id": "rf_failed",
+        "title": {
+          "en": "An RF command failed",
+          "no": "RF-kommando feilet"
+        },
+        "tokens": [
+          {
+            "name": "kommando",
+            "type": "string",
+            "title": {
+              "en": "Command",
+              "no": "Kommando"
+            }
+          },
+          {
+            "name": "antenne",
+            "type": "string",
+            "title": {
+              "en": "Antenna",
+              "no": "Antenne"
+            }
+          },
+          {
+            "name": "feil",
+            "type": "string",
+            "title": {
+              "en": "Error",
+              "no": "Feil"
+            }
+          }
+        ],
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=fireplace"
+          }
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "id": "send_on",
+        "title": {
+          "en": "Send ON / ignition command",
+          "no": "Send PÅ / tenn"
+        },
+        "titleFormatted": {
+          "en": "Send ON / ignition command",
+          "no": "Send PÅ / tenn"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=fireplace"
+          }
+        ]
+      },
+      {
+        "id": "send_off",
+        "title": {
+          "en": "Send OFF command",
+          "no": "Send AV"
+        },
+        "titleFormatted": {
+          "en": "Send OFF command",
+          "no": "Send AV"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=fireplace"
+          }
+        ]
+      },
+      {
+        "id": "send_broad",
+        "title": {
+          "en": "Set broad flame",
+          "no": "Sett bred flamme"
+        },
+        "titleFormatted": {
+          "en": "Set broad flame",
+          "no": "Sett bred flamme"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=fireplace"
+          }
+        ]
+      },
+      {
+        "id": "send_narrow",
+        "title": {
+          "en": "Set narrow flame",
+          "no": "Sett smal flamme"
+        },
+        "titleFormatted": {
+          "en": "Set narrow flame",
+          "no": "Sett smal flamme"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=fireplace"
+          }
+        ]
+      },
+      {
+        "id": "send_flame_up",
+        "title": {
+          "en": "Increase flame",
+          "no": "Øk flammen"
+        },
+        "titleFormatted": {
+          "en": "Increase flame",
+          "no": "Øk flammen"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=fireplace"
+          }
+        ]
+      },
+      {
+        "id": "send_flame_down",
+        "title": {
+          "en": "Decrease flame",
+          "no": "Senk flammen"
+        },
+        "titleFormatted": {
+          "en": "Decrease flame",
+          "no": "Senk flammen"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=fireplace"
+          }
+        ]
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "name": {
+        "en": "Maxitrol G6R-H4T2 fireplace",
+        "no": "Maxitrol G6R-H4T2 peis"
+      },
+      "class": "heater",
+      "capabilities": [
+        "onoff",
+        "button.bred_flamme",
+        "button.smal_flamme",
+        "button.flame_up",
+        "button.flame_down"
+      ],
+      "capabilitiesOptions": {
+        "button.bred_flamme": {
+          "title": {
+            "en": "Broad flame",
+            "no": "Bred flamme"
+          }
+        },
+        "button.smal_flamme": {
+          "title": {
+            "en": "Narrow flame",
+            "no": "Smal flamme"
+          }
+        },
+        "button.flame_up": {
+          "title": {
+            "en": "Flame up",
+            "no": "Flamme opp"
+          }
+        },
+        "button.flame_down": {
+          "title": {
+            "en": "Flame down",
+            "no": "Flamme ned"
+          }
+        }
+      },
+      "images": {
+        "small": "/drivers/fireplace/assets/images/small.png",
+        "large": "/drivers/fireplace/assets/images/large.png",
+        "xlarge": "/drivers/fireplace/assets/images/xlarge.png"
+      },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "rf433"
+      ],
+      "rf433": {
+        "satelliteMode": true
+      },
+      "pair": [
+        {
+          "id": "learn_remote"
+        }
+      ],
+      "id": "fireplace"
+    }
+  ],
+  "signals": {
+    "433": {
+      "g6r_h4t_aux": {
+        "carrier": 433920000,
+        "words": [
+          [
+            361,
+            690
+          ],
+          [
+            690,
+            361
+          ]
+        ],
+        "eof": [
+          361
+        ],
+        "interval": 32760,
+        "repetitions": 10,
+        "txOnly": true,
+        "minimalLength": 22,
+        "maximalLength": 22
+      },
+      "g6r_h4t_rx": {
+        "carrier": 433920000,
+        "words": [
+          [
+            308,
+            624
+          ],
+          [
+            609,
+            323
+          ]
+        ],
+        "eof": [
+          609
+        ],
+        "interval": 21860,
+        "repetitions": 10,
+        "minimalLength": 22,
+        "maximalLength": 22,
+        "sensitivity": 0.4
+      },
+      "g6r_h4t_standard": {
+        "carrier": 433920000,
+        "words": [
+          [
+            361,
+            690
+          ],
+          [
+            690,
+            361
+          ]
+        ],
+        "eof": [
+          690
+        ],
+        "interval": 32760,
+        "repetitions": 10,
+        "txOnly": true,
+        "minimalLength": 22,
+        "maximalLength": 22
+      }
+    }
+  }
+}
