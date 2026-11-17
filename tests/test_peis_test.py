@@ -277,6 +277,22 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(signal.calls),n)
         self.assertLessEqual(n,1)
 
+    async def test_off_command_interrupts_active_hold(self):
+        signal=self.device.rf.signals["g6r_h4t_standard"]
+        async def simulated_tx(bits,**kwargs):
+            signal.calls.append({"bits":list(bits),**kwargs})
+            await asyncio.sleep(0.02)
+        signal.tx=simulated_tx
+        await self.device.start_hold("flame_up","test-interrupt-session")
+        await asyncio.sleep(0.035)
+        await self.device.send_command("off",source="Flow:off")
+        self.assertTrue(self.device._hold_stop.is_set())
+        await self.device.stop_hold("test-interrupt-session")
+        recorded=len(signal.calls)
+        await asyncio.sleep(0.06)
+        self.assertEqual(recorded,len(signal.calls))
+        self.assertEqual("".join(map(str,signal.calls[-1]["bits"])),"0100100011010001011011")
+
     async def test_errors_logged_and_not_retried(self):
         self.device.rf.signals["g6r_h4t_aux"].fail = True
         with self.assertRaisesRegex(RuntimeError, "test RF failure"):

@@ -207,6 +207,12 @@ class PeisTestDevice(Device):
         signal = self._aux if profile == AUX_SIGNAL_ID else self._standard
         bits = frame_for(self._address, command)
         antenna = self._antenna_name()
+        # Any manual or Flow command preempts an existing dashboard hold
+        # before its next radio burst. Never keep holding after OFF.
+        if source != "Dashboard hold":
+            if self._hold_task is not None and not self._hold_task.done():
+                self._hold_stop.set()
+                self.log("EMBERRF HOLD INTERRUPTED: another command was requested")
         async with self._tx_lock:
             self.log(
                 f"EMBERRF TX START: kommando={title}; kilde={source}; antenne={antenna}; "

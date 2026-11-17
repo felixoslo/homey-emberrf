@@ -38,3 +38,5 @@ Homeys vanlige knapper Flamme opp og Flamme ned gir et enkelttrykk med 10 RF-rep
 For å justere så lenge du holder inne: Legg til **EmberRF – hold flamme** på et Homey-dashboard. Velg EmberRF-peisen i widgetens innstillinger, og hold inne ▲ Flamme opp eller ▼ Flamme ned. Det sendes korte RF-serier kontinuerlig mens fingeren holdes nede. Slipp for å stoppe. Ved bortfall av kontakt stopper Homey etter ca. 1,2 sekunder uten nytt signal, og alle hold avsluttes automatisk etter maksimalt åtte sekunder. En allerede påbegynt RF-serie kan ikke stoppes øyeblikkelig.
 
 I Flow-kortene **Øk flammen** og **Senk flammen** velger du **varighetsfaktor 1–10**. Faktor 1 = 10 repetisjoner, faktor 5 = 50 og faktor 10 = 100. Dette er ikke en prosent for flammehøyden, men en måling av hvor lenge reguleringssignalet gjentas. Begynn med faktor 1 og juster etter observerte resultater. Hverken widgeten eller denne nye Flow-funksjonen er ennå fysisk verifisert.
+
+**Forrang:** En annen kommando til peisen, særlig Av, avbryter en eventuell pågående holderegulering før neste RF-pulstog. En påbegynt kort RF-sending kan likevel ikke trekkes tilbake.
