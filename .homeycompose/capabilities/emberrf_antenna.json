@@ -1,0 +1,33 @@
+{
+  "type": "enum",
+  "title": {
+    "en": "Antenna (Homey setting)",
+    "no": "Antenne (Homey-innstilling)"
+  },
+  "getable": true,
+  "setable": false,
+  "uiComponent": "sensor",
+  "values": [
+    {
+      "id": "unknown",
+      "title": {
+        "en": "Not reported by app SDK",
+        "no": "Ikke rapportert av app-SDK"
+      }
+    },
+    {
+      "id": "pro",
+      "title": {
+        "en": "Homey Pro",
+        "no": "Homey Pro"
+      }
+    },
+    {
+      "id": "bridge",
+      "title": {
+        "en": "Homey Bridge",
+        "no": "Homey Bridge"
+      }
+    }
+  ]
+}

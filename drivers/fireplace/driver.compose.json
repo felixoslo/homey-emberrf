@@ -10,7 +10,8 @@
     "button.smal_flamme",
     "button.flame_up",
     "button.flame_down",
-    "emberrf_flame_mode"
+    "emberrf_flame_mode",
+    "emberrf_antenna"
   ],
   "capabilitiesOptions": {
     "button.bred_flamme": {
@@ -41,6 +42,13 @@
       "title": {
         "en": "Requested flame mode",
         "no": "Flammemodus (anmodet)"
+      },
+      "preventInsights": true
+    },
+    "emberrf_antenna": {
+      "title": {
+        "en": "Antenna configured in Homey",
+        "no": "Antenne valgt i Homey"
       },
       "preventInsights": true
     }

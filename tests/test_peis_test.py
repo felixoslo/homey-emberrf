@@ -68,6 +68,12 @@ class StubDevice:
     def get_setting(self, name):
         return self.settings.get(name)
 
+    def get_settings(self):
+        return dict(self.settings)
+
+    def get_capability_value(self, cap):
+        return self.values.get(cap)
+
     def log(self, line):
         self.logs.append(line)
 
@@ -103,7 +109,7 @@ class PeisManifestTests(unittest.TestCase):
         self.flow = json.loads((APP / "drivers/fireplace/driver.flow.compose.json").read_text())
 
     def test_capabilities_switch_and_two_momentary_buttons(self):
-        self.assertEqual(self.driver["capabilities"], ["onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down", "emberrf_flame_mode"])
+        self.assertEqual(self.driver["capabilities"], ["onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down", "emberrf_flame_mode", "emberrf_antenna"])
 
     def test_bridge_or_pro_selectable(self):
         self.assertEqual(self.driver["rf433"], {"satelliteMode": True})
@@ -194,12 +200,12 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
         await self.device.on_init()
 
     async def test_migration_preserves_device_and_does_not_transmit(self):
-        self.assertEqual(self.device.caps, {"onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down", "emberrf_flame_mode"})
+        self.assertEqual(self.device.caps, {"onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down", "emberrf_flame_mode", "emberrf_antenna"})
         self.assertEqual(self.device.values["onoff"], False)
-        self.assertEqual(set(self.device.listeners), self.device.caps - {"emberrf_flame_mode"})
+        self.assertEqual(set(self.device.listeners), self.device.caps - {"emberrf_flame_mode", "emberrf_antenna"})
         self.assertEqual(sum(len(x.calls) for x in self.device.rf.signals.values()), 0)
         await self.device.on_init()
-        self.assertEqual(self.device.caps, {"onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down", "emberrf_flame_mode"})
+        self.assertEqual(self.device.caps, {"onoff", "button.bred_flamme", "button.smal_flamme", "button.flame_up", "button.flame_down", "emberrf_flame_mode", "emberrf_antenna"})
         self.assertEqual(sum(len(x.calls) for x in self.device.rf.signals.values()), 0)
 
     async def test_onoff_switch_uses_long_eof_profile(self):
@@ -318,6 +324,39 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
         with self.assertRaises(RuntimeError):
             await self.device.send_command("narrow",source="unit")
         self.assertEqual(self.device.values["emberrf_flame_mode"],"broad")
+
+    async def test_antenna_readback_from_homey_sdk_settings(self):
+        self.assertEqual(self.device.values["emberrf_antenna"], "bridge")
+        self.assertEqual(self.device._antenna_name(), "Homey Bridge")
+        assert any("source=get_settings" in line for line in self.device.logs)
+        self.device.settings["satellite_mode_antenna"] = "self"
+        await self.device.on_settings(
+            {"satellite_mode_antenna": "test-homey-bridge-id"},
+            {"satellite_mode_antenna": "self"},
+            ("satellite_mode_antenna",)
+        )
+        self.assertEqual(self.device.values["emberrf_antenna"], "pro")
+        self.assertEqual(sum(len(x.calls) for x in self.device.rf.signals.values()), 0)
+
+    async def test_antenna_missing_is_unknown_not_wrong_route(self):
+        self.device.settings.pop("satellite_mode_antenna")
+        self.device.values["emberrf_antenna"] = "unknown"
+        await self.device._refresh_antenna_readback()
+        self.assertEqual(self.device.values["emberrf_antenna"], "unknown")
+        self.assertIn("not exposed", self.device._antenna_name())
+
+    async def test_last_observed_native_antenna_survives_sdk_hidden_field(self):
+        self.device.settings.pop("satellite_mode_antenna")
+        await self.device._refresh_antenna_readback()
+        self.assertEqual(self.device.values["emberrf_antenna"], "bridge")
+        self.assertEqual(self.device._antenna_name(), "Homey Bridge (last observed)")
+        self.assertEqual(sum(len(sig.calls) for sig in self.device.rf.signals.values()),0)
+
+    async def test_experimental_picker_removed_without_rf(self):
+        await self.device.add_capability("emberrf_antenna_control")
+        await self.device.on_init()
+        self.assertFalse(self.device.has_capability("emberrf_antenna_control"))
+        self.assertEqual(sum(len(sig.calls) for sig in self.device.rf.signals.values()),0)
 
     async def test_antenna_change_does_not_transmit(self):
         await self.device.on_settings({"satellite_mode_antenna": "self"}, {"satellite_mode_antenna": "test-homey-bridge-id"}, ("satellite_mode_antenna",))

@@ -73,6 +73,16 @@ class PeisTestDevice(Device):
             await self.add_capability("emberrf_flame_mode")
             await self.set_capability_value("emberrf_flame_mode", "unknown")
             self.log("EMBERRF MIGRATE: flame mode state installed, initially unknown; no RF sent")
+        # Homey manages Satellite Mode. Expose the SDK-reported value without
+        # overriding the routing; the RF stack selects the antenna from device=self.
+        if not self.has_capability("emberrf_antenna"):
+            await self.add_capability("emberrf_antenna")
+        await self._refresh_antenna_readback()
+        if self.has_capability("emberrf_antenna_control"):
+            # v0.4.2 experimental picker did not change Homey's native RF
+            # antenna and was never referenced by any user Flow. Remove it.
+            await self.remove_capability("emberrf_antenna_control")
+            self.log("EMBERRF MIGRATE: removed misleading antenna picker; no RF sent")
         self.register_capability_listener("onoff", self.on_onoff)
         self.register_capability_listener("button.bred_flamme", self._on_broad)
         self.register_capability_listener("button.smal_flamme", self._on_narrow)
@@ -99,21 +109,72 @@ class PeisTestDevice(Device):
     async def _on_flame_down(self, value: bool, **kwargs: Any) -> None:
         await self.send_command("flame_down", source="Flamme ned (Homey UI)")
 
-    def _antenna_name(self) -> str:
+    def _antenna_setting(self) -> tuple[str | None, str]:
+        # Homey may expose its built-in satellite field via get_settings()
+        # without exposing it via get_setting(). Do not infer a route.
+        try:
+            settings = self.get_settings()
+            if "satellite_mode_antenna" in settings:
+                value = settings["satellite_mode_antenna"]
+                if isinstance(value, str) and value:
+                    return value, "get_settings"
+        except (AttributeError, KeyError, TypeError):
+            pass
         try:
             value = self.get_setting("satellite_mode_antenna")
-        except Exception:
-            return "ukjent"
+            if isinstance(value, str) and value:
+                return value, "get_setting"
+        except (AttributeError, KeyError, TypeError):
+            pass
+        return None, "not_exposed"
+
+    @staticmethod
+    def _antenna_state(value: str | None) -> str:
         if value == "self":
-            return "Homey Pro"
-        return "Homey Bridge" if value else "not selected"
+            return "pro"
+        if isinstance(value, str) and value:
+            return "bridge"
+        return "unknown"
+
+    def _antenna_name(self) -> str:
+        state = self._antenna_state(self._antenna_setting()[0])
+        if state == "unknown":
+            # The reserved field may not be exposed on app restart;
+            # use only a previously observed native setting, never guess.
+            try:
+                last = self.get_capability_value("emberrf_antenna")
+            except (AttributeError, KeyError, TypeError):
+                last = None
+            if last == "pro":
+                return "Homey Pro (last observed)"
+            if last == "bridge":
+                return "Homey Bridge (last observed)"
+            return "not exposed by Homey app SDK"
+        return {"pro": "Homey Pro", "bridge": "Homey Bridge"}[state]
+
+    async def _refresh_antenna_readback(self, new_settings: dict | None = None) -> None:
+        # Note: this shows the configuration exposed to this app, not proof
+        # of which hardware actually transmitted a radio frame.
+        if new_settings is not None and "satellite_mode_antenna" in new_settings:
+            value = new_settings.get("satellite_mode_antenna")
+            source = "on_settings"
+        else:
+            value, source = self._antenna_setting()
+        state = self._antenna_state(value)
+        if state == "unknown":
+            try:
+                last = self.get_capability_value("emberrf_antenna")
+            except (AttributeError, KeyError, TypeError):
+                last = None
+            if last in ("pro", "bridge"):
+                state, source = last, "last_observed_in_Homey"
+        if self.has_capability("emberrf_antenna"):
+            await self.set_capability_value("emberrf_antenna", state)
+        self.log(f"EMBERRF ANTENNE STATUS: {state}; source={source}; RF routing=Homey Satellite Mode (device=self)")
 
     async def on_settings(self, old_settings: dict, new_settings: dict, changed_keys: tuple[str, ...]) -> str | None:
         if "satellite_mode_antenna" in changed_keys:
-            self.log(
-                f"EMBERRF ANTENNE: byttet fra {old_settings.get('satellite_mode_antenna')} "
-                f"til {new_settings.get('satellite_mode_antenna')}; ingen RF sendt"
-            )
+            await self._refresh_antenna_readback(new_settings)
         return None
 
     async def _trigger_result(self, action: str, tokens: dict[str, str]) -> None:

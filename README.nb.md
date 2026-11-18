@@ -47,3 +47,11 @@ I Flow-kortene **Øk flammen** og **Senk flammen** velger du **varighetsfaktor 1
 Ett kort trykk på **Flamme opp** eller **Flamme ned** sender nå **50 RF-repetisjoner som én TX-kommando**, fem ganger lengre enn de tidligere 10. Dette er ikke fem separate klikk. Målet er færre pip og større justering per trykk, men hvor mange av peisens 22 fysiske trinn det gir må testes. I Flow velger man fortsatt faktor 1–10 (10–100 repetisjoner per sammenhengende TX-kall). Dashboardet har kortere 20-repetisjons-serier for å kunne stoppe når man slipper; en fysisk påbegynt serie kan ikke avbrytes.
 
 Appen har nå en avlesbar tilstand **Flammemodus (anmodet)** med «Smal flamme», «Bred flamme» og «Ukjent», som oppdateres etter en akseptert RF-sending. Det er *ikke* målt fysisk brennerstatus. For en lesbar historikk kan Homey Flow-kortet «RF-kommando ble akseptert av Homey» kobles til tidslinjelogg, som viser blant annet bred/smal flamme og justeringer.
+
+### v0.4.1: Avlesning av antenne
+
+Homeys innebygde antennevalg leses via Python-SDKens `get_settings()` (reserve: `get_setting()`) og ved `on_settings()`. Egen, skrivebeskyttet **Antenne (Homey-innstilling)** viser Homey Pro, Homey Bridge eller «Ikke rapportert av app-SDK». Vi gjetter ikke hvis SDK ikke eksponerer Homeys systeminnstilling. RF sendes fortsatt med `device=self`, slik at Homey selv velger antenne. Lesingen er ikke en fysisk bekreftelse på hvilken sender som bruktes.
+
+### v0.4.3: Verifisert antennevalg
+
+Antennebytte skal gjøres via Homeys innebygde **Enhet → Avanserte innstillinger → Satellite Mode → Antenne**, der Homey Pro og Homey Bridge kan velges. Homey Python-SDK skjuler av og til det reserverte feltet ved appstart, men melder endringer via on_settings(). EmberRF viser derfor siste faktisk observerte Homey-valg som skrivebeskyttet avlesning, også etter appomstart. En forsøksvelger inne i EmberRF ble fjernet da praktisk test viste at den bare endret appvisningen, ikke den ekte Homey-innstillingen. Vi ber ikke om global homey:manager:api-adgang for en peisapp. ChatGPT kan endre og lese det autoritative antennevalget ved behov via den separat autoriserte Homey API-integrasjonen. Ingen RF sendes ved endringer.
