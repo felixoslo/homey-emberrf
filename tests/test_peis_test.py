@@ -126,6 +126,21 @@ class PeisManifestTests(unittest.TestCase):
         self.assertEqual([x["id"] for x in self.flow["actions"]], ["send_on", "send_off", "send_broad", "send_narrow", "send_flame_up", "send_flame_down"])
         self.assertEqual([x["id"] for x in self.flow["triggers"]], ["rf_accepted", "rf_failed"])
 
+    def test_generated_app_manifest_matches_source_release_version(self):
+        source = json.loads((APP / ".homeycompose/app.json").read_text())
+        generated = json.loads((APP / "app.json").read_text())
+        build_path = APP / ".homeybuild/app.json"
+        built = json.loads(build_path.read_text()) if build_path.exists() else None
+        manifests = [("app.json", generated)]
+        if (APP / ".homeybuild/app.json").exists():
+            manifests.append((".homeybuild/app.json", built))
+        for name, release in manifests:
+            with self.subTest(manifest=name):
+                self.assertEqual(release["id"], source["id"])
+                self.assertEqual(release["version"], source["version"])
+                self.assertTrue(release["drivers"][0]["rf433"]["satelliteMode"])
+                self.assertIn("emberrf_antenna", release["drivers"][0]["capabilities"])
+
     def test_unique_id(self):
         self.assertEqual(json.loads((APP / ".homeycompose/app.json").read_text())["id"], "com.emberrf.homey")
 
