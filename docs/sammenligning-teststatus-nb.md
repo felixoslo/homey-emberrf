@@ -21,10 +21,6 @@
 
 **Reell merverdi:** EmberRF utvider først og fremst kontrollflaten med **smal/bred brenner**, korrekte separate RF-profiler, flere dedikerte Flow-handlinger, RF-resultatutløsere og diagnostikk, avlesning av Homeys native antennevalg, manuell paring og norsk brukergrensesnitt. **På/Av, Flamme opp/ned og Flow-varighet fantes allerede i Maxitrol**; disse skal derfor ikke fremstilles som nye oppfinnelser.
 
-## Videreutviklingsplan: flere peissystemer
-
-Vi planlegger å utvikle EmberRF videre som en utvidbar Homey-plattform for **flere typer peissystemer** gjennom separate drivere og protokolltilpasninger. Ambisjonen er å gjenbruke felles funksjoner som Flows, brukergrensesnitt og diagnostikk på tvers av støttede systemer. **Per versjon 0.4.4 er bare den dokumenterte G6R-H4T2-installasjonen fysisk testet**, og ingen støtte for nye peissystemer er lovet eller verifisert. Hvert nytt system vil kreve egen protokollanalyse, funksjons- og sikkerhetstesting før støtte annonseres.
-
 ## Tidligere kontakt og forsøk på å få funksjonen inn i eksisterende app
 
 Den **15. november 2026** opprettet vi [GitHub-sak #3 – «AUX / secondary burner support for G6R-H4T2»](https://github.com/michaeldove/homey-maxitrol-fireplace/issues/3) i Michael Doves Maxitrol-prosjekt. Vi ba om støtte for sekundærbrenner/AUX, altså smal og bred flamme, både som direkte Homey-kontroll og som Flow-handlinger. Vi tilbød oss samtidig å hjelpe med testing og ytterligere tekniske opplysninger.
@@ -48,4 +44,4 @@ Ved kontroll **19. november 2026** var saken fortsatt **åpen og hadde 0 komment
 4. Bevar MIT-lisens og kreditering av Michael Dove. Forklar utvidet funksjonalitet og modellfokus åpent ved eventuell vurdering av overlapp med eksisterende Maxitrol-app.
 5. Fysisk tilstand kan ikke leses tilbake. Appen må ikke brukes som sikkerhetskontroll eller til uovervåket tenning.
 
-**Publiseringsstatus:** Kildekode v0.4.4 er tilgjengelig på [GitHub](https://github.com/felixoslo/homey-emberrf) og består automatiske tester og Homeys tekniske validering. Den er **ikke** sertifisert eller publisert i Homey App Store. Ytterligere fysisk kompatibilitets- og pairingtesting anbefales før offisiell innsending. Homeys frivillige AI-forhåndsgjennomgang ble ikke kjørt fordi API-nøkkel manglet; dette er ikke det samme som teknisk validering.
+**Publiseringsstatus:** Kildekode v0.4.4 er tilgjengelig på [GitHub](https://github.com/felixoslo/homey-emberrf) og består automatiske tester og Homeys tekniske validering. Den ble **sendt inn til sertifisering 19. november 2026 som bygg 1** og er nå i status `in_review`, uten automatisk publisering ved godkjenning. Den er **ikke** sertifisert eller offentlig publisert i Homey App Store. Ytterligere fysisk kompatibilitets- og pairingtesting anbefales før offisiell innsending. Homeys frivillige AI-forhåndsgjennomgang ble ikke kjørt fordi API-nøkkel manglet; dette er ikke det samme som teknisk validering.

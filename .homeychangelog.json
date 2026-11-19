@@ -1,0 +1,6 @@
+{
+  "0.4.4": {
+    "en": "Initial EmberRF release: direct On/Off, broad/narrow auxiliary burner control, flame up/down, Homey Pro or Bridge antenna selection, and RF diagnostics. Tested with a G6R-H4T2 fireplace.",
+    "no": "Første EmberRF-utgave: På/Av, bred/smal sekundærbrenner, flamme opp/ned, antennevalg mellom Homey Pro og Bridge og RF-diagnostikk. Testet med én G6R-H4T2-peis."
+  }
+}
