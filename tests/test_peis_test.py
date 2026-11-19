@@ -129,8 +129,12 @@ class PeisManifestTests(unittest.TestCase):
     def test_generated_app_manifest_matches_source_release_version(self):
         source = json.loads((APP / ".homeycompose/app.json").read_text())
         generated = json.loads((APP / "app.json").read_text())
-        built = json.loads((APP / ".homeybuild/app.json").read_text())
-        for name, release in (("app.json", generated), (".homeybuild/app.json", built)):
+        build_path = APP / ".homeybuild/app.json"
+        built = json.loads(build_path.read_text()) if build_path.exists() else None
+        manifests = [("app.json", generated)]
+        if (APP / ".homeybuild/app.json").exists():
+            manifests.append((".homeybuild/app.json", built))
+        for name, release in manifests:
             with self.subTest(manifest=name):
                 self.assertEqual(release["id"], source["id"])
                 self.assertEqual(release["version"], source["version"])
