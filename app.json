@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.emberrf.homey",
-  "version": "0.4.0",
+  "version": "0.4.4",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "runtime": "python",
@@ -277,7 +277,8 @@
         "button.smal_flamme",
         "button.flame_up",
         "button.flame_down",
-        "emberrf_flame_mode"
+        "emberrf_flame_mode",
+        "emberrf_antenna"
       ],
       "capabilitiesOptions": {
         "button.bred_flamme": {
@@ -310,6 +311,13 @@
             "no": "Flammemodus (anmodet)"
           },
           "preventInsights": true
+        },
+        "emberrf_antenna": {
+          "title": {
+            "en": "Antenna configured in Homey",
+            "no": "Antenne valgt i Homey"
+          },
+          "preventInsights": true
         }
       },
       "images": {
@@ -334,39 +342,40 @@
       "id": "fireplace"
     }
   ],
-  "widgets": {
-    "flame_hold": {
-      "name": {
-        "en": "EmberRF flame hold",
-        "no": "EmberRF – hold flamme"
-      },
-      "height": 175,
-      "devices": {
-        "type": "app",
-        "singular": true,
-        "filter": {
-          "capabilities": "onoff"
-        }
-      },
-      "api": {
-        "start_hold": {
-          "method": "POST",
-          "path": "/hold/start"
-        },
-        "heartbeat_hold": {
-          "method": "POST",
-          "path": "/hold/heartbeat"
-        },
-        "stop_hold": {
-          "method": "POST",
-          "path": "/hold/stop"
-        }
-      },
-      "id": "flame_hold",
-      "settings": []
-    }
-  },
   "capabilities": {
+    "emberrf_antenna": {
+      "type": "enum",
+      "title": {
+        "en": "Antenna (Homey setting)",
+        "no": "Antenne (Homey-innstilling)"
+      },
+      "getable": true,
+      "setable": false,
+      "uiComponent": "sensor",
+      "values": [
+        {
+          "id": "unknown",
+          "title": {
+            "en": "Not reported by app SDK",
+            "no": "Ikke rapportert av app-SDK"
+          }
+        },
+        {
+          "id": "pro",
+          "title": {
+            "en": "Homey Pro",
+            "no": "Homey Pro"
+          }
+        },
+        {
+          "id": "bridge",
+          "title": {
+            "en": "Homey Bridge",
+            "no": "Homey Bridge"
+          }
+        }
+      ]
+    },
     "emberrf_flame_mode": {
       "type": "enum",
       "title": {

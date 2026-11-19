@@ -9,4 +9,4 @@ Important source files: `.homeycompose/signals/433/` (RX and two TX RF profiles)
 The project is licensed under MIT and credits Michael Dove's upstream Maxitrol project.
 
 
-The v0.3.0 hold widget is safety-relevant. Changes must include tests for interrupted widget contacts, repeated/overlapping sessions, factor bounds and real-device response before claiming hardware support. Do not report accepted RF transmission as proven fire state.
+The experimental dashboard hold widget was removed in v0.4.4. Tests must continue to verify one-shot 50-frame flame buttons, Flow factor bounds, no RF transmission on initialization, and safety behavior. Do not report accepted RF transmission as proven fire state.

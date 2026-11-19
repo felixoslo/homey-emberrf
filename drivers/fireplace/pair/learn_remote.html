@@ -1,36 +1,56 @@
 <main class="homey-form">
-  <h2>EmberRF – pair Maxitrol G6R-H4T2</h2>
-  <p>All four RF commands (On, Off, Broad flame, Narrow flame) are already built into EmberRF. You only need to pair your Maxitrol G6R-H4T2 handset address. Hold the original handset near the Homey radio and press Flame Down for about two seconds when scanning. Listening itself does not transmit RF, but using the original remote may operate the fireplace.</p>
-  <button type="button" class="homey-button-primary-full" id="learn">Learn from remote (30 s)</button>
+  <h2 data-i18n="pair.heading"></h2>
+  <p data-i18n="pair.intro"></p>
+  <button type="button" class="homey-button-primary-full" id="learn" data-i18n="pair.learn"></button>
   <p id="status" role="status" aria-live="polite"></p>
   <hr />
-  <p>If radio learning is unavailable, enter the 18-bit remote address in hexadecimal. Do not enter your network IP address.</p>
-  <label for="address">Handset address (1–5 hex digits)</label>
+  <p data-i18n="pair.fallback"></p>
+  <label for="address" data-i18n="pair.address"></label>
   <input id="address" class="homey-form-input" autocomplete="off" spellcheck="false" placeholder="0x12345" maxlength="7" />
-  <button type="button" class="homey-button-secondary-full" id="manual">Pair with address</button>
+  <button type="button" class="homey-button-secondary-full" id="manual" data-i18n="pair.manual"></button>
 </main>
 <script type="application/javascript">
-  Homey.setTitle("EmberRF pairing (alpha)");
-  const status = document.getElementById("status");
-  const learn = document.getElementById("learn");
-  const manual = document.getElementById("manual");
-  const address = document.getElementById("address");
+  // Homey.__ uses /locales/<language>.json, with English as the fallback.
+  const tr = key => Homey.__(key);
+  document.querySelectorAll('[data-i18n]').forEach(element => {
+    element.textContent = tr(element.dataset.i18n);
+  });
+  Homey.setTitle(tr('pair.title'));
+  const status = document.getElementById('status');
+  const learn = document.getElementById('learn');
+  const manual = document.getElementById('manual');
+  const address = document.getElementById('address');
+  const errors = [
+    ['Handset address must be hexadecimal text', 'pair.error_hex_type'],
+    ['Enter 1–5 hexadecimal digits', 'pair.error_hex_format'],
+    ['G6R address must fit in 18 bits', 'pair.error_bits'],
+    ['Invalid G6R remote address', 'pair.error_invalid'],
+    ['Supply a hex address in the address field', 'pair.error_supply'],
+    ['No compatible 433 MHz G6R frame detected', 'pair.error_scan'],
+  ];
+  function translatedError(error) {
+    const message = String(error?.message || error);
+    for (const [original, key] of errors) {
+      if (message.includes(original)) return tr(key);
+    }
+    return message;
+  }
   async function addDevice(device) {
     await Homey.createDevice(device);
-    status.textContent = "Paired. Choose Homey Pro or Homey Bridge as antenna in device settings.";
+    status.textContent = tr('pair.paired');
     Homey.done();
   }
   async function run(button, event, data) {
     button.disabled = true;
-    status.textContent = "Working…";
+    status.textContent = tr('pair.working');
     try {
       const device = await Homey.emit(event, data);
       await addDevice(device);
     } catch (err) {
-      status.textContent = String(err?.message || err);
+      status.textContent = translatedError(err);
       button.disabled = false;
     }
   }
-  learn.addEventListener("click", () => run(learn, "learn_remote"));
-  manual.addEventListener("click", () => run(manual, "manual_address", {address: address.value.trim()}));
+  learn.addEventListener('click', () => run(learn, 'learn_remote'));
+  manual.addEventListener('click', () => run(manual, 'manual_address', {address: address.value.trim()}));
 </script>

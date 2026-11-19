@@ -1,6 +1,5 @@
 import asyncio
 import math
-import time
 from typing import Any
 from homey.device import Device
 
@@ -9,9 +8,6 @@ from homey.device import Device
 BASE_REPETITIONS = 10
 MAX_FLOW_FACTOR = 10
 DEFAULT_FLAME_TAP_REPETITIONS = 50  # One contiguous TX call; approximately 5x former 10-frame tap
-HOLD_BURST_REPETITIONS = 20
-HOLD_MAX_SECONDS = 8.0
-HOLD_HEARTBEAT_SECONDS = 1.2
 
 def repetitions_for_factor(factor: int | float) -> int:
     if isinstance(factor, bool) or not isinstance(factor, (int, float)):
@@ -50,11 +46,6 @@ class PeisTestDevice(Device):
         await super().on_init()
         self._address = int(self.get_data()["address"])
         self._tx_lock = asyncio.Lock()
-        self._hold_lock = asyncio.Lock()
-        self._hold_task: asyncio.Task | None = None
-        self._hold_session: str | None = None
-        self._hold_last_heartbeat: float = 0.0
-        self._hold_stop = asyncio.Event()
 
         self._standard = self.homey.rf.get_signal_433(STANDARD_SIGNAL_ID)
         self._aux = self.homey.rf.get_signal_433(AUX_SIGNAL_ID)
@@ -189,78 +180,6 @@ class PeisTestDevice(Device):
 
     repetitions_for_factor = staticmethod(repetitions_for_factor)
 
-    async def on_uninit(self) -> None:
-        # A dashboard disappearing, an app restart or an unload stops any
-        # future RF bursts. The current short burst cannot be recalled.
-        self._hold_stop.set()
-        task = self._hold_task
-        if task and not task.done():
-            task.cancel()
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
-        await super().on_uninit()
-
-    async def start_hold(self, direction: str, session: str) -> dict:
-        if direction not in ("flame_up", "flame_down"):
-            raise ValueError("Only flame_up or flame_down may be held")
-        if not isinstance(session, str) or len(session) < 8 or len(session) > 100:
-            raise ValueError("Invalid hold session")
-        async with self._hold_lock:
-            if self._hold_task and not self._hold_task.done():
-                if session == self._hold_session:
-                    return {"active": True}
-                raise RuntimeError("Flame hold already active on this device")
-            self._hold_stop = asyncio.Event()
-            self._hold_session = session
-            self._hold_last_heartbeat = time.monotonic()
-            self._hold_task = asyncio.create_task(self._hold_loop(direction, session))
-            self.log(f"EMBERRF HOLD START: direction={direction}; max={HOLD_MAX_SECONDS}s; antenna={self._antenna_name()}")
-            return {"active": True, "max_seconds": HOLD_MAX_SECONDS}
-
-    async def heartbeat_hold(self, session: str) -> dict:
-        async with self._hold_lock:
-            active = (self._hold_session == session
-                      and self._hold_task is not None
-                      and not self._hold_task.done())
-            if active:
-                self._hold_last_heartbeat = time.monotonic()
-            return {"active": bool(active)}
-
-    async def stop_hold(self, session: str) -> dict:
-        async with self._hold_lock:
-            if self._hold_session != session:
-                return {"stopped": False}
-            self._hold_stop.set()
-            task = self._hold_task
-        if task and not task.done():
-            # Wait for at most the RF burst in progress. Do not restart TX.
-            await task
-        return {"stopped": True}
-
-    async def _hold_loop(self, direction: str, session: str) -> None:
-        started = time.monotonic()
-        bursts = 0
-        try:
-            while (not self._hold_stop.is_set()
-                   and time.monotonic() - started < HOLD_MAX_SECONDS
-                   and time.monotonic() - self._hold_last_heartbeat < HOLD_HEARTBEAT_SECONDS):
-                await self.send_command(
-                    direction, source="Dashboard hold",
-                    repetitions=HOLD_BURST_REPETITIONS, emit_result=(bursts == 0),
-                )
-                bursts += 1
-                # Give other tasks and the STOP/heartbeat API a chance to run.
-                await asyncio.sleep(0)
-        except asyncio.CancelledError:
-            raise
-        except Exception as exc:
-            self.error(f"EMBERRF HOLD ERROR: direction={direction}; {exc}")
-        finally:
-            self.log(f"EMBERRF HOLD STOP: direction={direction}; bursts={bursts}; elapsed={time.monotonic() - started:.2f}s")
-            self._hold_stop.set()
-
     async def send_command(
         self, action: str, *, source: str = "ukjent",
         repetitions: int | None = None, emit_result: bool = True,
@@ -273,12 +192,6 @@ class PeisTestDevice(Device):
         signal = self._aux if profile == AUX_SIGNAL_ID else self._standard
         bits = frame_for(self._address, command)
         antenna = self._antenna_name()
-        # Any manual or Flow command preempts an existing dashboard hold
-        # before its next radio burst. Never keep holding after OFF.
-        if source != "Dashboard hold":
-            if self._hold_task is not None and not self._hold_task.done():
-                self._hold_stop.set()
-                self.log("EMBERRF HOLD INTERRUPTED: another command was requested")
         async with self._tx_lock:
             self.log(
                 f"EMBERRF TX START: kommando={title}; kilde={source}; antenne={antenna}; "

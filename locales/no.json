@@ -1,0 +1,19 @@
+{
+  "pair": {
+    "title": "EmberRF-paring (alfa)",
+    "heading": "Par Maxitrol G6R-H4T2",
+    "intro": "Alle seks RF-kommandoene (På, Av, Bred, Smal, Flamme opp og Flamme ned) er innebygd. Du trenger bare å pare 18-bitersadressen til Maxitrol G6R-H4T2-fjernkontrollen. Hold originalfjernkontrollen nær Homey-antennen under søket, og trykk Flamme ned i omtrent to sekunder. Selve søket sender ikke RF, men originalfjernkontrollen kan påvirke peisen.",
+    "learn": "Lær fra fjernkontroll (30 sek)",
+    "fallback": "Hvis innlæring ikke fungerer, kan du skrive inn fjernkontrollens 18-bitersadresse som heksadesimalt tall. Ikke oppgi en nettverksadresse.",
+    "address": "Fjernkontrolladresse (1–5 heksadesimale tegn)",
+    "manual": "Par med adresse",
+    "working": "Arbeider…",
+    "paired": "Paring fullført. Velg Homey Pro eller Homey Bridge som antenne i enhetsinnstillingene.",
+    "error_hex_type": "Fjernkontrolladressen må være heksadesimal tekst.",
+    "error_hex_format": "Skriv inn 1–5 heksadesimale tegn, for eksempel 0x12345.",
+    "error_bits": "G6R-adressen kan maksimalt være 18 biter.",
+    "error_invalid": "Ugyldig G6R-fjernkontrolladresse.",
+    "error_supply": "Skriv inn en heksadesimal adresse i adressefeltet.",
+    "error_scan": "Fant ingen kompatible G6R-radiosignaler. Prøv nærmere Homey-antennen, eller skriv inn adressen manuelt."
+  }
+}

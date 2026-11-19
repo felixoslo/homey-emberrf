@@ -15,12 +15,12 @@ EmberRF is an open-source experimental Homey Python (SDK v3) app to control **Ma
 | **On / Off** | Send ignition (`1001`, long ending pulse) or off (`1011`, long ending pulse) |
 | **Broad flame** | Send AUX-on (`1001`, short ending pulse) |
 | **Narrow flame** | Send AUX-off (`1010`, short ending pulse) |
-| **Flame up** | RF command 1101, long ending pulse (alpha candidate, not physically verified) |
+| **Flame up** | RF command 1101, long ending pulse (physically tested on one installation) |
 | **Flame down** | RF command 1110, long ending pulse (HA Broadlink and 88 handset frames) |
 
 **No learning of individual commands required.** All six codes and their distinct pulse formats are preconfigured in the app. Pairing identifies only the **18-bit handset address** (like the original Maxitrol Homey app). This alpha targets the model above; other remotes/receivers have **not** been tested or claimed as compatible.
 
-**Flame up / down:** Both commands are now included as dedicated buttons and Flow actions. Flame Down is confirmed as G6R RF command 1110 by HA Broadlink and 88 valid handset captures. The HA Broadlink entry called Flame Up is **IR, not RF**; EmberRF uses the original G6R Homey RF protocol command 1101 as a **still-untested RF candidate**, with the standard long end pulse. Both are sent with 10 repetitions initially; adjust only after physical validation.
+**Flame up / down:** Both commands are now included as dedicated buttons and Flow actions. Flame Down is confirmed as G6R RF command 1110 by HA Broadlink and 88 valid handset captures. The HA Broadlink entry called Flame Up is **IR, not RF**; EmberRF uses the original G6R Homey RF protocol command 1101 as a RF command **physically validated on one installation**, with the standard long end pulse. The Homey device buttons use 50 RF repetitions per tap; the Flow duration factor controls 10–100 repetitions. On one tested fireplace, approximately three presses lowered the flame from maximum to minimum, and three raised it again.
 
 **Important RF discovery:** ignition and broad flame transmit identical 22 data bits but **different final pulse lengths**. These are separate RF profiles in `.homeycompose/signals/433/`. The working behavior was confirmed on one G6R-H4T2 installation with Homey Bridge. Compatibility with other installations is **not yet established**.
 
@@ -41,17 +41,17 @@ The app supports Homey's standard On/Off device Flows. Six repeatable action car
 
 
 
-## Flame Up / Down — continuous hold and Flow control (alpha v0.3.0)
+## Flame Up / Down — one-tap buttons and Flow control
 
 Both commands use the model-specific G6R RF masks already defined in the original Maxitrol Homey app: **Flame Up = 1101**, **Flame Down = 1110**, using the standard long ending pulse. The previously tested On/Off and AUX/broad/narrow radio profiles have not been changed.
 
-**Short press:** The standard Homey device buttons Flame Up and Flame Down each send 10 RF repetitions. A native Homey button does not provide reliable finger-release information, and cannot safely implement continuous holding.
+**Short press:** The standard Homey device buttons Flame Up and Flame Down each send 50 RF repetitions in a single TX call. A native Homey button does not provide reliable finger-release information, and cannot safely implement continuous holding.
 
-**Real press-and-hold:** Add the **EmberRF flame hold** widget to a Homey dashboard. Select your EmberRF fireplace in widget settings. Touch and hold ▲ or ▼ to send consecutive 10-frame bursts. Release to stop. It also stops on pointer cancellation, dashboard hide and browser focus loss; the Homey backend enforces an approximately 1.2-second heartbeat timeout and an absolute eight-second maximum. An already-started short burst cannot be revoked. The dashboard widget is an alpha feature pending physical and mobile-device testing. Any other device or Flow command (especially OFF) interrupts an active hold before the next RF burst.
+**No hold-to-adjust feature:** The experimental hold widget was removed in v0.4.4 after physical testing showed the standard one-tap buttons are sufficient. Each press sends one bounded RF transmission.
 
 **Flow duration factor:** The explicit Increase Flame and Decrease Flame Flow action cards include a required **Factor** from 1 to 10. Factor 1 = 10 RF repetitions, factor 4 = 40 repetitions, factor 10 = 100 repetitions. This changes RF transmission length, **not a measured percentage or known flame height**. Start at factor 1 while watching the fireplace. Out-of-range or noninteger factors are rejected.
 
-**Testing status:** Flame Down RF 1110 matches both HA Broadlink storage and 88 passive RF frames; the Flame Up RF mask 1101 is from the original Maxitrol driver. The HA Broadlink entry named Flame Up was saved as IR, not RF, and was not used. The new hold widget and Flow duration factors have passed offline tests but still require physical tuning and verification on the fireplace.
+**Testing status:** Flame Down RF 1110 matches both HA Broadlink storage and 88 passive RF frames; the Flame Up RF mask 1101 is from the original Maxitrol driver. The HA Broadlink entry named Flame Up was saved as IR, not RF, and was not used. Both flame buttons were physically tested on one G6R-H4T2 installation. Flow duration factors have passed offline tests but have not been independently calibrated on the fireplace.
 
 ## Application logging
 
@@ -66,7 +66,7 @@ Created by EmberRF contributors, incorporating/deriving from the MIT-licensed wo
 
 ## Alpha v0.4.0: requested burner mode and fewer RF calls
 
-A single Homey Flame Up or Flame Down tap now sends **50 radio frames within one signal.tx call** (formerly 10 frames), aiming to produce a more substantial adjustment without 5 distinct command invocations or repeated app-level clicks. No claim is made that 50 RF frames equal exactly five of the fireplace's approximately 22 physical height steps; the actual response and number of audible beeps require testing. Flow factor 1–10 still sends 10–100 frames as one API TX call. Dashboard holds use 20-frame bursts to reduce interruption latency.
+A single Homey Flame Up or Flame Down tap now sends **50 radio frames within one signal.tx call** (formerly 10 frames), aiming to produce a more substantial adjustment without 5 distinct command invocations or repeated app-level clicks. No claim is made that 50 RF frames equal exactly five of the fireplace's approximately 22 physical height steps; the actual response and number of audible beeps require testing. Flow factor 1–10 still sends 10–100 frames as one API TX call. The experimental hold widget was removed in v0.4.4.
 
 The new read-only enum **Requested Flame Mode** has Narrow, Broad and Unknown states, updated only after an accepted RF command. It is explicitly a command estimate, not measured valve or flame state. Use the existing RF accepted Flow trigger together with Homey's Timeline logging app to record **all commands**, including Narrow/Broad, not only On/Off capability events.
 
@@ -77,3 +77,11 @@ The read-only **Antenna (Homey setting)** capability displays the Homey Python S
 ### v0.4.3: Verified native Homey Satellite Mode control
 
 Homey's *built-in* **Device → Advanced Settings → Satellite Mode → Antenna** is the supported in-app selector between Homey Pro and Homey Bridge. Homey's Python Apps SDK hides this reserved field from ordinary get_settings() on some app startups, but sends valid changes to on_settings(). EmberRF mirrors the last **observed** Homey selection in its read-only Antenna capability, even across restarts; it never sends RF when settings change. A trial in-app picker was removed after a live test showed it did not update the system antenna despite updating the app UI. We deliberately do not request the privileged homey:manager:api permission, which would grant unrestricted Homey control and is inappropriate for a fireplace app. A connected assistant can read/set the authoritative native system setting through the user's separately authorized Homey API connection, and always verify it independently.
+
+### v0.4.4: Simplified flame controls
+
+The dashboard hold widget, its Python API, and the continuous-repeat backend were removed by request. Standard Flame Up/Down buttons retain **50 RF frames per press**, confirmed to achieve approximately full-range adjustment in three presses in each direction on the tested fireplace. The existing Flow factor remains available; no RF encoding, antenna setting or other command timing was changed.
+
+### v0.4.4: English and Norwegian pairing
+
+The custom pairing view and its common validation/error messages are localized in English and Norwegian using Homey translations. English is the fallback for other languages.

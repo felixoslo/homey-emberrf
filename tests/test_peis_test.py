@@ -1,4 +1,3 @@
-import asyncio
 import importlib.util
 import json
 from pathlib import Path
@@ -126,6 +125,21 @@ class PeisManifestTests(unittest.TestCase):
         self.assertEqual([x["id"] for x in self.flow["actions"]], ["send_on", "send_off", "send_broad", "send_narrow", "send_flame_up", "send_flame_down"])
         self.assertEqual([x["id"] for x in self.flow["triggers"]], ["rf_accepted", "rf_failed"])
 
+    def test_generated_app_manifest_matches_source_release_version(self):
+        source = json.loads((APP / ".homeycompose/app.json").read_text())
+        generated = json.loads((APP / "app.json").read_text())
+        build_path = APP / ".homeybuild/app.json"
+        built = json.loads(build_path.read_text()) if build_path.exists() else None
+        manifests = [("app.json", generated)]
+        if (APP / ".homeybuild/app.json").exists():
+            manifests.append((".homeybuild/app.json", built))
+        for name, release in manifests:
+            with self.subTest(manifest=name):
+                self.assertEqual(release["id"], source["id"])
+                self.assertEqual(release["version"], source["version"])
+                self.assertTrue(release["drivers"][0]["rf433"]["satelliteMode"])
+                self.assertIn("emberrf_antenna", release["drivers"][0]["capabilities"])
+
     def test_unique_id(self):
         self.assertEqual(json.loads((APP / ".homeycompose/app.json").read_text())["id"], "com.emberrf.homey")
 
@@ -168,24 +182,30 @@ class PeisManifestTests(unittest.TestCase):
         self.assertIn("signal.on_payload(on_payload)",source)
         self.assertIn("manual_address",source)
 
-    def test_flow_factor_arguments_and_hold_widget(self):
+    def test_flow_factor_arguments_and_no_hold_widget(self):
         flow=json.loads((APP/"drivers/fireplace/driver.flow.compose.json").read_text())
         for a in flow["actions"]:
             if a["id"] in ("send_flame_up","send_flame_down"):
                 self.assertEqual(a["args"][0]["name"],"factor")
                 self.assertEqual(a["args"][0]["type"],"number")
                 self.assertEqual((a["args"][0]["min"],a["args"][0]["max"]),(1,10))
-        widget=json.loads((APP/"widgets/flame_hold/widget.compose.json").read_text())
-        self.assertEqual(widget["devices"]["type"],"app")
-        self.assertTrue(widget["devices"]["singular"])
-        self.assertEqual(len(widget["api"]),3)
-        html=(APP/"widgets/flame_hold/public/index.html").read_text()
-        for term in ("pointerdown","pointerup","pointercancel","visibilitychange","/hold/heartbeat"):
-            self.assertIn(term,html)
-        device=(APP/"drivers/fireplace/device.py").read_text()
-        self.assertIn("HOLD_MAX_SECONDS = 8.0",device)
-        self.assertIn("HOLD_HEARTBEAT_SECONDS = 1.2",device)
-        self.assertIn("self._hold_stop.set()",device)
+        self.assertFalse((APP/"widgets").exists())
+        self.assertNotIn("start_hold", (APP/"drivers/fireplace/device.py").read_text())
+        generated=json.loads((APP/"app.json").read_text())
+        self.assertNotIn("widgets",generated)
+
+    def test_pairing_view_norwegian_and_english_localization(self):
+        en = json.loads((APP/"locales/en.json").read_text())["pair"]
+        no = json.loads((APP/"locales/no.json").read_text())["pair"]
+        self.assertEqual(set(en), set(no))
+        self.assertGreaterEqual(len(en), 15)
+        self.assertTrue(all(isinstance(en[k], str) and en[k] and isinstance(no[k], str) and no[k] for k in en))
+        view=(APP/"drivers/fireplace/pair/learn_remote.html").read_text()
+        self.assertIn("Homey.__(key)", view)
+        self.assertIn("Homey.setTitle(tr('pair.title'))", view)
+        self.assertIn("status.textContent = translatedError(err)", view)
+        for key in en:
+            self.assertIn('pair.'+key,view)
 
     def test_no_sdk_private_lock_collision(self):
         src = (APP / "drivers/fireplace/device.py").read_text()
@@ -248,56 +268,6 @@ class PeisDeviceTests(unittest.IsolatedAsyncioTestCase):
             repetitions=compute(4),
         )
         self.assertEqual(self.device.rf.signals["g6r_h4t_standard"].calls[-1]["repetitions"],40)
-
-    async def test_dashboard_hold_stops_after_release(self):
-        signal=self.device.rf.signals["g6r_h4t_standard"]
-        async def simulated_tx(bits,**kwargs):
-            signal.calls.append({"bits":list(bits),**kwargs})
-            await asyncio.sleep(0.025)
-        signal.tx=simulated_tx
-        key="unit-hold-unique-session"
-        result=await self.device.start_hold("flame_up",key)
-        self.assertTrue(result["active"])
-        await asyncio.sleep(0.07)
-        self.assertTrue((await self.device.heartbeat_hold(key))["active"])
-        self.assertFalse((await self.device.stop_hold("wrong-session"))["stopped"])
-        self.assertTrue((await self.device.stop_hold(key))["stopped"])
-        n=len(signal.calls)
-        self.assertGreater(n,0)
-        await asyncio.sleep(0.07)
-        self.assertEqual(len(signal.calls),n)
-        self.assertTrue(all(x["repetitions"]==20 for x in signal.calls))
-
-    async def test_hold_stops_when_heartbeat_is_stale(self):
-        signal=self.device.rf.signals["g6r_h4t_standard"]
-        async def simulated_tx(bits,**kwargs):
-            signal.calls.append({"bits":list(bits),**kwargs})
-            await asyncio.sleep(0.02)
-        signal.tx=simulated_tx
-        await self.device.start_hold("flame_down","heartbeat-test-session")
-        self.device._hold_last_heartbeat-=10
-        await asyncio.sleep(0.08)
-        self.assertFalse((await self.device.heartbeat_hold("heartbeat-test-session"))["active"])
-        n=len(signal.calls)
-        await asyncio.sleep(0.05)
-        self.assertEqual(len(signal.calls),n)
-        self.assertLessEqual(n,1)
-
-    async def test_off_command_interrupts_active_hold(self):
-        signal=self.device.rf.signals["g6r_h4t_standard"]
-        async def simulated_tx(bits,**kwargs):
-            signal.calls.append({"bits":list(bits),**kwargs})
-            await asyncio.sleep(0.02)
-        signal.tx=simulated_tx
-        await self.device.start_hold("flame_up","test-interrupt-session")
-        await asyncio.sleep(0.035)
-        await self.device.send_command("off",source="Flow:off")
-        self.assertTrue(self.device._hold_stop.is_set())
-        await self.device.stop_hold("test-interrupt-session")
-        recorded=len(signal.calls)
-        await asyncio.sleep(0.06)
-        self.assertEqual(recorded,len(signal.calls))
-        self.assertEqual("".join(map(str,signal.calls[-1]["bits"])),"0100100011010001011011")
 
     async def test_requested_flame_mode_migrates_and_logs(self):
         self.assertIn("emberrf_flame_mode",self.device.caps)

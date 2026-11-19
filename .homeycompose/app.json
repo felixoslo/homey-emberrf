@@ -1,6 +1,6 @@
 {
   "id": "com.emberrf.homey",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "compatibility": ">=13.0.0",
   "sdk": 3,
   "runtime": "python",

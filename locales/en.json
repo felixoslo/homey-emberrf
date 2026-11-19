@@ -1,0 +1,19 @@
+{
+  "pair": {
+    "title": "EmberRF pairing (alpha)",
+    "heading": "Pair Maxitrol G6R-H4T2",
+    "intro": "All six RF commands (On, Off, Broad, Narrow, Flame Up and Flame Down) are built in. You only need to pair the 18-bit address of your Maxitrol G6R-H4T2 handset. When scanning, hold the original handset near the Homey antenna and press Flame Down for about two seconds. Scanning does not transmit RF, but using the original handset may operate the fireplace.",
+    "learn": "Learn from remote (30 s)",
+    "fallback": "If learning is unavailable, enter the 18-bit handset address in hexadecimal. Do not enter a network IP address.",
+    "address": "Handset address (1–5 hex digits)",
+    "manual": "Pair with address",
+    "working": "Working…",
+    "paired": "Paired. In device settings, choose Homey Pro or Homey Bridge as the antenna.",
+    "error_hex_type": "Handset address must be hexadecimal text.",
+    "error_hex_format": "Enter 1–5 hexadecimal digits, e.g. 0x12345.",
+    "error_bits": "The G6R address must fit in 18 bits.",
+    "error_invalid": "Invalid G6R handset address.",
+    "error_supply": "Enter a hexadecimal address in the address field.",
+    "error_scan": "No compatible G6R radio signal was detected. Move closer to the Homey antenna or enter the address manually."
+  }
+}

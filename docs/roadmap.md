@@ -2,7 +2,7 @@
 
 ## Available in public alpha v0.2.0
 
-- Tested G6R-H4T2 RF encoding and separate standard/AUX end-pulse profiles, On/Off, Broad, Narrow, Flame Up and Flame Down (Flame Up RF needs physical validation).
+- Tested G6R-H4T2 RF encoding and separate standard/AUX end-pulse profiles, On/Off, Broad, Narrow, Flame Up and Flame Down on one G6R-H4T2 installation.
 - Homey Pro / Homey Bridge antenna selection via Satellite Mode.
 - Six direct Flow actions, two send-status Flow triggers, local diagnostic logs, safety disclosure and MIT attribution.
 - G6R-H4T2 handset-address pairing by RF capture or manual handset hex address. All six command codes are embedded; no individual RF command learning. **Implementation and unit-tested only; physical pairing is not yet verified.**
@@ -18,12 +18,12 @@
 
 No claim of official certification or compatibility with untested fireplace models.
 
-- Physically validate EmberRF Flame Up RF 1101 (HA only has an unrelated IR packet under that name). Confirm effective press/repetition duration. Flame Down RF 1110 is supported by HA Broadlink and passive handset captures.
+- Flame Up RF 1101 and Flame Down RF 1110 were both physically verified in the regular device buttons (50 repetitions per press, about three presses each way for full-range adjustment on the test fireplace). Broader compatibility remains unverified.
 
 
-## v0.3.0 alpha implementation and outstanding verification
+## Flame control (revised in v0.4.4)
 
 - Model-specific G6R RF masks 1101 (Flame Up) and 1110 (Flame Down) implemented with repeatable time factor 1–10 in Homey Flow. Radio timing unchanged.
-- Dashboard widget supports press and hold with release, browser-hide and focus-loss STOP, backend heartbeat timeout and eight-second hold limit.
-- Physical testing pending: confirm Flame Up actually raises flame (HA had an IR rather than RF capture), whether 10 repeated packets yield the intended step, hold response time, and the behavior of RF Bridge vs Pro. Test release timing on Android and iOS.
+- Experimental dashboard hold widget and continuous-transmit backend were removed by request; native Flame Up/Down buttons are sufficient on the tested installation.
+- On one fireplace, both Flame Up and Flame Down physically responded to 50-frame button presses. Remaining work includes pairing on additional handsets, both antenna locations, and cross-device reliability.
 - Do not confuse virtual On/Off state, RF acknowledgment or transmission factor with measured burner operation or gas safety.
