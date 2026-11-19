@@ -21,6 +21,12 @@
 
 **Reell merverdi:** EmberRF utvider først og fremst kontrollflaten med **smal/bred brenner**, korrekte separate RF-profiler, flere dedikerte Flow-handlinger, RF-resultatutløsere og diagnostikk, avlesning av Homeys native antennevalg, manuell paring og norsk brukergrensesnitt. **På/Av, Flamme opp/ned og Flow-varighet fantes allerede i Maxitrol**; disse skal derfor ikke fremstilles som nye oppfinnelser.
 
+## Tidligere kontakt og forsøk på å få funksjonen inn i eksisterende app
+
+Den **15. november 2026** opprettet vi [GitHub-sak #3 – «AUX / secondary burner support for G6R-H4T2»](https://github.com/michaeldove/homey-maxitrol-fireplace/issues/3) i Michael Doves Maxitrol-prosjekt. Vi ba om støtte for sekundærbrenner/AUX, altså smal og bred flamme, både som direkte Homey-kontroll og som Flow-handlinger. Vi tilbød oss samtidig å hjelpe med testing og ytterligere tekniske opplysninger.
+
+Ved kontroll **19. november 2026** var saken fortsatt **åpen og hadde 0 kommentarer**. Vi har ikke mottatt noe svar fra utvikleren. Dette viser at vi har tatt initiativ til samarbeid før en separat innsending, **men den korte tiden uten svar må ikke fremstilles som at utvikleren har avslått, eller at samarbeid er umulig**. Vi fortsetter derfor å kreditere opphavet og holder døren åpen for samarbeid.
+
 ## Dokumentert testing på én G6R-H4T2-installasjon
 
 - **Fysisk bekreftet 19. november 2026 med brukeren ved peisen:** tenning, slukking, veksling mellom smal og bred flamme og regulering opp/ned.
