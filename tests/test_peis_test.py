@@ -153,7 +153,8 @@ class PeisManifestTests(unittest.TestCase):
         manifest=json.loads((APP/".homeycompose/app.json").read_text())
         self.assertIn("G6R-H4T2",manifest["description"]["en"])
         self.assertIn("G6R-H4T2",manifest["description"]["no"])
-        self.assertIn("Pair handset address only",manifest["description"]["en"])
+        self.assertLess(len(manifest["description"]["en"]), 120)
+        self.assertIn("18-bit handset address", (APP/"README.md").read_text())
         self.assertEqual(manifest["id"],"com.emberrf.homey")
         driver=(APP/"drivers/fireplace/device.py").read_text()
         self.assertIn('("På / tenn", 0b1001, STANDARD_SIGNAL_ID, 10)',driver)
@@ -206,6 +207,17 @@ class PeisManifestTests(unittest.TestCase):
         self.assertIn("status.textContent = translatedError(err)", view)
         for key in en:
             self.assertIn('pair.'+key,view)
+
+    def test_app_store_readmes_are_localized_and_concise(self):
+        source=json.loads((APP/".homeycompose/app.json").read_text())
+        self.assertEqual(set(source["description"]), {"en","no"})
+        for path in (APP/"README.txt", APP/"README.no.txt"):
+            readme=path.read_text()
+            self.assertTrue(300 < len(readme) < 850)
+            self.assertNotIn("https://", readme)
+            self.assertEqual(readme.count("\n\n"),1)
+            self.assertNotIn("v0.",readme)
+        self.assertIn("one-way",(APP/"README.txt").read_text())
 
     def test_no_sdk_private_lock_collision(self):
         src = (APP / "drivers/fireplace/device.py").read_text()

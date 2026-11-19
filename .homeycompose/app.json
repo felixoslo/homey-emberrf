@@ -14,8 +14,8 @@
     "no": "EmberRF – G6R-H4T2"
   },
   "description": {
-    "en": "Alpha for Maxitrol G6R-H4T2 433.92 MHz: direct On/Off, narrow/broad burner mode, longer flame up/down commands, adjustable Flow duration and live command logging. Pair handset address only.",
-    "no": "Alfa for Maxitrol G6R-H4T2 (433,92 MHz): På/Av, bred/smal flamme, lengre RF-sending ved flamme opp/ned, justerbar Flow-varighet og logg. Par kun fjernkontrolladresse."
+    "en": "Control the flame on compatible Maxitrol G6R-H4T2 gas fireplaces directly.",
+    "no": "Juster flammen på kompatible Maxitrol G6R-H4T2-gasspeiser direkte."
   },
   "author": {
     "name": "EmberRF contributors (based on MIT source by Michael Dove)"

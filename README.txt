@@ -1,17 +1,3 @@
-EmberRF - experimental Maxitrol G6R-H4T2 / GV60 433.92 MHz fireplace control for Homey Pro / Homey Bridge.
+Bring compatible Maxitrol G6R-H4T2 gas fireplaces into your Homey home. Adjust the flame and switch between broad and narrow burner modes from the Homey app, while keeping your original fireplace remote. Radio commands are sent directly through Homey Pro or a compatible Homey Bridge, without a separate infrared hub or cloud service.
 
-On/Off switch, broad/narrow and flame up/down buttons, dedicated Homey Flow cards, RF logging,
-and optional Homey Bridge antenna. All On/Off/Broad/Narrow/Flame Up/Flame Down codes are built in. Pair by learning ONLY the G6R-H4T2 handset address from RF
-or entering the 18-bit hex address manually (generic pairing not physically verified).
-
-SAFETY: The On/Off state indicates the LAST COMMAND, not physical fireplace state.
-RF transmission acknowledgement cannot guarantee gas valve or flame status.
-Keep the original remote; never rely on this alpha for unattended gas ignition.
-
-Source, manual and testing: https://github.com/felixoslo/homey-emberrf
-
-
-Flame Up/Down buttons are one-shot with 50 RF frames per press, physically
-tested on one installation (approximately three presses each direction).
-Flow scaling (factor 1-10) remains available. The hold widget was removed
-in v0.4.4; no continuous-repeat backend is included.
+EmberRF is an independent community project tested on one fireplace installation. Its radio signals are one-way: Homey cannot confirm whether the flame or gas valve actually changed state. Keep the manufacturer's safety controls and original remote available, and do not use the app for unattended ignition.

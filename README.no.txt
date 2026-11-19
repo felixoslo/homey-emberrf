@@ -1,0 +1,3 @@
+Styr kompatible Maxitrol G6R-H4T2-gasspeiser fra Homey. Juster flammehøyden og velg bred eller smal flamme direkte i Homey-appen, samtidig som den originale fjernkontrollen fortsatt kan brukes. RF-kommandoene sendes via Homey Pro eller en kompatibel Homey Bridge, uten en egen infrarød hub eller skytjeneste.
+
+EmberRF er et uavhengig fellesskapsprosjekt, foreløpig prøvd på én peisinstallasjon. RF-signalene går bare én vei: Homey kan ikke bekrefte at flammen eller gassventilen faktisk har endret tilstand. Behold originalfjernkontrollen og produsentens sikkerhetsfunksjoner, og ikke bruk appen til tenning uten tilsyn.
